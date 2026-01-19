@@ -371,7 +371,7 @@ const styles = {
   header: {
     backgroundColor: '#ffffff',
     borderBottom: '1px solid #e0e0e0',
-    padding: '0 2rem', // Eliminado el padding vertical
+    padding: '0 2rem 2rem 2rem', // Añadido paddingBottom
     flexShrink: 0,
   },
     headerContent: {
@@ -394,6 +394,7 @@ const styles = {
           display: 'block',
           marginTop: '-60px', // Subir el logo aún más
           marginBottom: '-60px', // Ajustar el margen inferior
+          marginLeft: '-40px',
         },    dealershipInfo: {
       display: 'flex',
       flexDirection: 'column',
