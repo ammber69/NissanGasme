@@ -1,0 +1,5 @@
+Listado de dependencias externas instaladas manualmente en el proyecto:
+
+1. lucide-react
+   - Comando: npm install lucide-react
+   - Uso: Proporciona los iconos SVG utilizados en toda la interfaz (iconos de maletín, búsqueda, cerrar, check, reloj, etc.) en los componentes Inicio.jsx, Registro.jsx y Estados.jsx.

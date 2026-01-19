@@ -1,0 +1,45 @@
+# Contexto del Proyecto: Portal de Empleo Nissan Gasme
+
+## Objetivo
+Desarrollar un portal de empleo web (Bolsa de Trabajo) para la agencia automotriz "Nissan Gasme". La aplicación permite a los usuarios ver vacantes disponibles, filtrar por ubicación, aplicar a puestos y consultar el estado de sus postulaciones.
+
+## Estructura del Proyecto
+- **Tecnología Principal:** React + Vite.
+- **Repositorio:** https://github.com/ammber69/NissanGasme
+- **Directorio de Trabajo:** src/
+
+### Componentes Principales (src/components/)
+1. **Inicio.jsx**:
+   - Componente principal que se renderiza al arrancar (configurado en App.jsx).
+   - **Header:** Muestra el logo de Gasme (gasme.png), título "GASME AUTOMOTRIZ" y números de contacto (Ventas, Seminuevos, Servicio) con prefijo +52. Incluye el botón "Ver Mi Postulación" alineado a la derecha.
+   - **Hero Banner:** Imagen de fondo (oz2.png) sin texto superpuesto.
+   - **Filtros (Sidebar):** Permite filtrar vacantes por ubicación (Agencias específicas: Orizaba, Córdoba, Tierra Blanca, Tuxtepec, Juchitán, Salina Cruz).
+   - **Lista de Vacantes:** Muestra tarjetas con puestos reales (Contador, Mecánico, ING Sistemas, Mercadólogo, Vendedor). Los salarios no tienen signo de pesos ($).
+   - **Detalle de Vacante:** Al hacer clic en una tarjeta, muestra detalles completos y un botón "Aplicar Ahora".
+
+2. **Registro.jsx**:
+   - Modal emergente que aparece al hacer clic en "Aplicar Ahora".
+   - Formulario para capturar datos del candidato: Nombre, Correo, Teléfono, carga de CV (simulado) y mensaje.
+
+3. **Estados.jsx (TrackingPostulacion)**:
+   - Componente integrado en el header de Inicio.jsx (Botón "Ver Mi Postulación").
+   - Modal que permite al usuario ingresar un código (ej. NIS2024001) para ver el estado de su solicitud.
+   - Muestra una línea de tiempo (timeline) con estados: Recibida, En revisión, Entrevista, Decisión.
+
+## Activos (public/)
+- **gasme.png:** Logo principal utilizado en el header.
+- **oz2.png:** Imagen utilizada en el Hero Banner.
+- **logonegro.png:** Utilizado como Favicon.
+
+## Historial de Cambios Relevantes
+- Se configuró `Inicio.jsx` como la página de arranque en `App.jsx`.
+- Se instaló `lucide-react` para iconos.
+- Se personalizaron los datos de las vacantes (Puestos y Ubicaciones reales de Nissan Gasme).
+- Se ajustó el header para reducir espacios en blanco y hacer el logo más grande y prominente.
+- Se implementó la funcionalidad de filtros por agencia.
+- Se creó el flujo de aplicación con el modal de `Registro`.
+- Se implementó el flujo de seguimiento con el modal de `Estados`.
+- Se configuró y subió el proyecto a un repositorio GitHub privado (luego público/colaborativo).
+
+## Estado Actual
+El proyecto es funcional y desplegable. La interfaz simula una experiencia completa de usuario desde la búsqueda hasta la aplicación y el seguimiento.
