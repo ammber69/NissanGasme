@@ -118,9 +118,9 @@ const JobPortal = () => {
             <div style={styles.dealershipInfo}>
               <h1 style={styles.dealershipName}>GASME AUTOMOTRIZ</h1>
               <div style={styles.contactInfo}>
-                <span>Autos nuevos 229-924-9080</span>
-                <span>Seminuevos 229-215-0649</span>
-                <span>Servicio 229-924-9080</span>
+                <span>Ventas 271 716 6612</span>
+                <span>Seminuevos +52 271 284 8254</span>
+                <span>Servicio 271 716 7586</span>
               </div>
             </div>
           </div>
