@@ -12,7 +12,7 @@ const jobsData = [
     type: 'Presencial',
     time: 'Tiempo Completo',
     experience: '3+ años',
-    salary: '$15,000 - $18,000/mes',
+    salary: '15,000 - 18,000/mes',
     postedTime: 'Hace 2 días',
     applications: '15 Aplicaciones',
     description: 'Buscamos un Contador con experiencia para llevar la contabilidad general, impuestos y nóminas de la sucursal.'
@@ -25,7 +25,7 @@ const jobsData = [
     type: 'Presencial',
     time: 'Tiempo Completo',
     experience: '2+ años',
-    salary: '$12,000 - $15,000/mes',
+    salary: '12,000 - 15,000/mes',
     postedTime: 'Hace 1 día',
     applications: '8 Aplicaciones',
     description: 'Se solicita Mecánico Automotriz para mantenimiento preventivo y correctivo de unidades Nissan. Experiencia necesaria.'
@@ -38,7 +38,7 @@ const jobsData = [
     type: 'Presencial',
     time: 'Tiempo Completo',
     experience: '1+ años',
-    salary: '$18,000 - $22,000/mes',
+    salary: '18,000 - 22,000/mes',
     postedTime: 'Hace 5 horas',
     applications: '5 Aplicaciones',
     description: 'Encargado de soporte técnico, redes y mantenimiento de equipos de cómputo en la agencia.'
@@ -51,7 +51,7 @@ const jobsData = [
     type: 'Presencial',
     time: 'Tiempo Completo',
     experience: '2+ años',
-    salary: '$14,000 - $17,000/mes',
+    salary: '14,000 - 17,000/mes',
     postedTime: 'Hace 3 días',
     applications: '12 Aplicaciones',
     description: 'Responsable de estrategias de marketing, redes sociales y campañas publicitarias para incrementar ventas.'
@@ -77,7 +77,7 @@ const jobsData = [
     type: 'Presencial',
     time: 'Tiempo Completo',
     experience: '3+ años',
-    salary: '$13,000 - $16,000/mes',
+    salary: '13,000 - 16,000/mes',
     postedTime: 'Hace 4 horas',
     applications: '10 Aplicaciones',
     description: 'Mecánico especialista en diagnóstico y reparación de motores. Certificaciones deseables.'
@@ -118,9 +118,9 @@ const JobPortal = () => {
             <div style={styles.dealershipInfo}>
               <h1 style={styles.dealershipName}>GASME AUTOMOTRIZ</h1>
               <div style={styles.contactInfo}>
-                <span>Ventas 271 716 6612</span>
+                <span>Ventas +52 271 716 6612</span>
                 <span>Seminuevos +52 271 284 8254</span>
-                <span>Servicio 271 716 7586</span>
+                <span>Servicio +52 271 716 7586</span>
               </div>
             </div>
           </div>
