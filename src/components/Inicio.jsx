@@ -411,7 +411,7 @@ const styles = {
   contactInfo: {
     display: 'flex',
     gap: '1.5rem',
-    fontSize: '0.85rem',
+    fontSize: '1.1rem',
     color: '#666',
   },
   heroBanner: {
@@ -439,6 +439,7 @@ const styles = {
     display: 'flex',
     gap: '2rem',
     width: '100%',
+    position: 'relative',
   },
   sidebar: {
     backgroundColor: '#ffffff',
@@ -648,15 +649,17 @@ const styles = {
   detailsPanel: {
     backgroundColor: '#ffffff',
     borderRadius: '0.5rem',
-    width: '350px',
-    flexShrink: 0,
+    width: '450px',
     height: 'fit-content',
-    maxHeight: 'calc(100vh - 8rem)',
-    position: 'sticky',
+    maxHeight: 'calc(100% - 4rem)',
+    position: 'absolute',
     top: '2rem',
+    right: '2rem',
+    zIndex: 10,
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
+    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
   },
   detailsHeader: {
     padding: '1.5rem',
