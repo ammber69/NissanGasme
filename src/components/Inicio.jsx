@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Briefcase, Search, Share2, Bookmark, X, MapPin, Clock, DollarSign } from 'lucide-react';
+import Registro from './Registro';
 
 // Datos de ejemplo actualizados
 const jobsData = [
@@ -85,6 +86,7 @@ const jobsData = [
 
 const JobPortal = () => {
   const [selectedJob, setSelectedJob] = useState(null);
+  const [showRegistration, setShowRegistration] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     sortBy: 'recent',
@@ -334,9 +336,22 @@ const JobPortal = () => {
                 <p style={styles.salaryValue}>{selectedJob.salary}</p>
               </div>
 
-              <button style={styles.applyButton}>Aplicar Ahora</button>
+              <button 
+                style={styles.applyButton}
+                onClick={() => setShowRegistration(true)}
+              >
+                Aplicar Ahora
+              </button>
             </div>
           </aside>
+        )}
+
+        {/* Modal de Registro */}
+        {showRegistration && selectedJob && (
+          <Registro 
+            job={selectedJob} 
+            onClose={() => setShowRegistration(false)} 
+          />
         )}
       </div>
     </div>
