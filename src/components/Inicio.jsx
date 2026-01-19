@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Briefcase, Search, Share2, Bookmark, X, MapPin, Clock, DollarSign } from 'lucide-react';
 import Registro from './Registro';
+import TrackingPostulacion from './Estados';
 
 // Datos de ejemplo actualizados
 const jobsData = [
@@ -124,6 +125,7 @@ const JobPortal = () => {
               </div>
             </div>
           </div>
+          <TrackingPostulacion />
         </div>
       </header>
 
