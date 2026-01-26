@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Briefcase, Search, Share2, Bookmark, X, MapPin, Clock, DollarSign } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Briefcase, Search, Share2, X, MapPin, Clock, DollarSign, Phone, Menu, Mail, MapPin as Location, Facebook, Instagram, Twitter } from 'lucide-react';
 import Registro from './Registro';
 import TrackingPostulacion from './Estados';
 
@@ -85,16 +85,33 @@ const jobsData = [
   }
 ];
 
+const useWindowWidth = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowWidth;
+};
+
 const JobPortal = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [showRegistration, setShowRegistration] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const [filters, setFilters] = useState({
     sortBy: 'recent',
     jobType: [],
     experience: [],
     location: []
   });
+
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
 
   const handleJobClick = (job) => {
     setSelectedJob(job);
@@ -104,40 +121,119 @@ const JobPortal = () => {
     setSelectedJob(null);
   };
 
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setShowCopiedMessage(true);
+    setTimeout(() => {
+      setShowCopiedMessage(false);
+    }, 2000);
+  };
+
   const filteredJobs = jobsData.filter(job => 
     job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     job.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getStyle = (styleName) => {
+    const mobileStyle = mobileStyles[styleName] || {};
+    return isMobile ? { ...styles[styleName], ...mobileStyle } : styles[styleName];
+  };
+
   return (
-    <div style={styles.container}>
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.headerContent}>
-          <div style={styles.headerLeft}>
-            <img src="/gasme.png" alt="Gasme Logo" style={styles.gasmeLogo} />
-            <div style={styles.dealershipInfo}>
-              <h1 style={styles.dealershipName}>GASME AUTOMOTRIZ</h1>
-              <div style={styles.contactInfo}>
-                <span>Ventas +52 271 716 6612</span>
-                <span>Seminuevos +52 271 284 8254</span>
-                <span>Servicio +52 271 716 7586</span>
+    <div style={getStyle('container')} key={isMobile ? 'mobile' : 'desktop'}>
+      {/* Header Mejorado */}
+      <header style={getStyle('header')}>
+        <div style={getStyle('headerContent')}>
+          {/* Logo y Nombre */}
+          <div style={getStyle('headerBrand')}>
+            <img src="/gasme.png" alt="Gasme Logo" style={getStyle('gasmeLogo')} />
+            {!isMobile && (
+              <div style={styles.dealershipInfo}>
+                <h1 style={styles.dealershipName}>GASME AUTOMOTRIZ</h1>
               </div>
-            </div>
+            )}
+            {isMobile && (
+              <div style={getStyle('dealershipInfo')}>
+                <h1 style={getStyle('dealershipName')}>GASME AUTOMOTRIZ</h1>
+              </div>
+            )}
           </div>
-          <TrackingPostulacion />
+
+          {/* Tracking - Desktop */}
+          {!isMobile && (
+            <div style={styles.headerRight}>
+              <TrackingPostulacion />
+            </div>
+          )}
+
+          {/* Botón Tracking - Mobile */}
+          {isMobile && (
+            <div style={mobileStyles.mobileTrackingButton}>
+              <TrackingPostulacion />
+            </div>
+          )}
         </div>
       </header>
 
+      {/* Botón flotante de contacto - Solo móvil */}
+      {isMobile && (
+        <>
+          <button 
+            style={mobileStyles.mobileContactToggle}
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            aria-label="Contacto"
+          >
+            <Phone size={24} />
+          </button>
+
+          {showMobileMenu && (
+            <div style={mobileStyles.mobileContactPanel}>
+              <div style={mobileStyles.mobileContactHeader}>
+                Contáctanos
+              </div>
+              <div style={mobileStyles.mobileContactContent}>
+                <div style={mobileStyles.mobileContactItem}>
+                  <Phone size={20} color="#c3002f" />
+                  <div>
+                    <div style={mobileStyles.mobileContactLabel}>Ventas</div>
+                    <a href="tel:+522717166612" style={mobileStyles.mobileContactNumber}>
+                      +52 271 716 6612
+                    </a>
+                  </div>
+                </div>
+                <div style={mobileStyles.mobileContactItem}>
+                  <Phone size={20} color="#c3002f" />
+                  <div>
+                    <div style={mobileStyles.mobileContactLabel}>Seminuevos</div>
+                    <a href="tel:+522712848254" style={mobileStyles.mobileContactNumber}>
+                      +52 271 284 8254
+                    </a>
+                  </div>
+                </div>
+                <div style={mobileStyles.mobileContactItem}>
+                  <Phone size={20} color="#c3002f" />
+                  <div>
+                    <div style={mobileStyles.mobileContactLabel}>Servicio</div>
+                    <a href="tel:+522717167586" style={mobileStyles.mobileContactNumber}>
+                      +52 271 716 7586
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
       {/* Hero Banner */}
-      <div style={styles.heroBanner}>
-        <h2 style={styles.heroTitle}></h2>
+      <div style={getStyle('heroBanner')}>
+        <h2 style={getStyle('heroTitle')}></h2>
       </div>
 
       {/* Main Content */}
-      <div style={styles.mainContent}>
+      <div style={getStyle('mainContent')}>
         {/* Sidebar Filters */}
-        <aside style={styles.sidebar}>
+        <aside style={getStyle('sidebar')}>
           <h3 style={styles.sidebarTitle}>Filtros</h3>
           
           <div style={styles.filterSection}>
@@ -165,7 +261,6 @@ const JobPortal = () => {
               <input type="text" placeholder="Max" style={styles.input} />
             </div>
           </div>
-
 
           <div style={styles.filterSection}>
             <h4 style={styles.filterTitle}>Experiencia</h4>
@@ -213,8 +308,8 @@ const JobPortal = () => {
         </aside>
 
         {/* Jobs List */}
-        <main style={styles.jobsSection}>
-          <div style={styles.searchBar}>
+        <main style={getStyle('jobsSection')}>
+          <div style={getStyle('searchBar')}>
             <div style={styles.searchInputWrapper}>
               <Search size={20} color="#9ca3af" style={styles.searchIcon} />
               <input 
@@ -233,12 +328,12 @@ const JobPortal = () => {
             <span style={styles.resultsCount}>{filteredJobs.length} Resultados Encontrados</span>
           </div>
 
-          <div style={styles.jobsGrid}>
+          <div style={getStyle('jobsGrid')}>
             {filteredJobs.map(job => (
               <div 
                 key={job.id} 
                 style={{
-                  ...styles.jobCard,
+                  ...getStyle('jobCard'),
                   ...(selectedJob?.id === job.id ? styles.jobCardActive : {})
                 }}
                 onClick={() => handleJobClick(job)}
@@ -252,14 +347,10 @@ const JobPortal = () => {
                     <p style={styles.jobCompany}>{job.company}</p>
                     <p style={styles.jobLocation}>{job.location}</p>
                   </div>
-                  <button 
-                    style={styles.bookmarkButton}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Bookmark size={20} color="#9ca3af" />
+                  <button style={styles.iconButton} onClick={handleShare}>
+                    <Share2 size={20} />
                   </button>
+                  {showCopiedMessage && <span style={{color: 'green'}}>¡Copiado!</span>}
                 </div>
 
                 <div style={styles.jobTags}>
@@ -282,16 +373,14 @@ const JobPortal = () => {
 
         {/* Job Details Panel */}
         {selectedJob && (
-          <aside style={styles.detailsPanel}>
+          <aside style={getStyle('detailsPanel')}>
             <div style={styles.detailsHeader}>
               <div style={styles.detailsHeaderTop}>
                 <div style={styles.detailsActions}>
-                  <button style={styles.iconButton}>
+                  <button style={styles.iconButton} onClick={handleShare}>
                     <Share2 size={20} />
                   </button>
-                  <button style={styles.iconButton}>
-                    <Bookmark size={20} />
-                  </button>
+                  {showCopiedMessage && <span style={{color: 'green'}}>¡Copiado!</span>}
                 </div>
                 <button style={styles.closeButton} onClick={closeJobDetails}>
                   <X size={24} />
@@ -356,6 +445,116 @@ const JobPortal = () => {
           />
         )}
       </div>
+
+      {/* Footer */}
+      <footer style={getStyle('footer')}>
+        <div style={getStyle('footerContent')}>
+          {/* Columna 1: Logo y descripción */}
+          <div style={styles.footerColumn}>
+            <img src="/65.png" alt="Gasme Logo" style={styles.footerLogo} />
+            <h3 style={styles.footerBrand}>GASME AUTOMOTRIZ</h3>
+            <p style={styles.footerDescription}>
+              Tu distribuidor autorizado Nissan de confianza. Ofrecemos vehículos nuevos, 
+              seminuevos y servicio de calidad en toda la región.
+            </p>
+          </div>
+
+          {/* Columna 3: Ubicaciones */}
+          <div style={styles.footerColumn}>
+            <h4 style={styles.footerTitle}>Nuestras Agencias</h4>
+            <ul style={styles.footerList}>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Orizaba
+              </li>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Córdoba
+              </li>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Tierra Blanca
+              </li>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Tuxtepec
+              </li>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Juchitán
+              </li>
+              <li style={styles.footerListItem}>
+                <Location size={14} style={{display: 'inline', marginRight: '0.5rem'}} />
+                Nissan Gasme Salina Cruz
+              </li>
+            </ul>
+          </div>
+
+          {/* Columna 4: Contacto */}
+          <div style={styles.footerColumn}>
+            {!isMobile && (
+            <>
+              <h4 style={styles.footerTitle}>Contacto</h4>
+              <div style={styles.footerContactInfo}>
+                <div style={styles.footerContactItem}>
+                  <Phone size={16} />
+                  <div>
+                    <p style={styles.footerContactLabel}>Ventas</p>
+                    <a href="tel:+522717166612" style={styles.footerContactLink}>+52 271 716 6612</a>
+                  </div>
+                </div>
+                <div style={styles.footerContactItem}>
+                  <Phone size={16} />
+                  <div>
+                    <p style={styles.footerContactLabel}>Seminuevos</p>
+                    <a href="tel:+522712848254" style={styles.footerContactLink}>+52 271 284 8254</a>
+                  </div>
+                </div>
+                <div style={styles.footerContactItem}>
+                  <Phone size={16} />
+                  <div>
+                    <p style={styles.footerContactLabel}>Servicio</p>
+                    <a href="tel:+522717167586" style={styles.footerContactLink}>+52 271 716 7586</a>
+                  </div>
+                </div>
+                <div style={styles.footerContactItem}>
+                  <Mail size={16} />
+                  <div>
+                    <p style={styles.footerContactLabel}>Email</p>
+                    <a href="mailto:contacto@gasme.com" style={styles.footerContactLink}>contacto@gasme.com</a>
+                  </div>
+                </div>
+              </div>
+            </>
+            )}
+
+            {/* Redes sociales */}
+            <div style={styles.socialMedia}>
+              <a href="#" style={styles.socialLink} aria-label="Facebook">
+                <Facebook size={20} />
+              </a>
+              <a href="#" style={styles.socialLink} aria-label="Instagram">
+                <Instagram size={20} />
+              </a>
+              <a href="#" style={styles.socialLink} aria-label="Twitter">
+                <Twitter size={20} />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Copyright */}
+        <div style={getStyle('footerBottom')}>
+          <div style={getStyle('footerLinks')}>
+            <a href="#privacidad" style={styles.footerBottomLink}>Política de Privacidad</a>
+            <span style={styles.separator}>|</span>
+            <a href="#terminos" style={styles.footerBottomLink}>Términos y Condiciones</a>
+          </div>
+          <p style={styles.copyright}>
+            © 2026 Gasme Automotriz. Todos los derechos reservados.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
@@ -370,55 +569,72 @@ const styles = {
   },
   header: {
     backgroundColor: '#ffffff',
-    borderBottom: '1px solid #e0e0e0',
-    padding: '0 2rem 2rem 2rem', // Añadido paddingBottom
+    borderBottom: '2px solid #c3002f',
+    padding: '0 2rem 2rem 2rem',
     flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   },
-    headerContent: {
-      maxWidth: '1400px',
-      margin: '0 auto',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start', // Cambiado para alinear el contenido arriba
-    },
-    headerLeft: {
-      display: 'flex',
-      alignItems: 'flex-start', // Cambiado de 'center' a 'flex-start'
-      gap: '1rem',
-    },
-        gasmeLogo: {
-          flexShrink: 0,
-          width: '240px',
-          height: '180px',
-          objectFit: 'contain',
-          display: 'block',
-          marginTop: '-60px', // Subir el logo aún más
-          marginBottom: '-60px', // Ajustar el margen inferior
-          marginLeft: '-40px',
-        },    dealershipInfo: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '0.5rem',
-      // justifyContent: 'center', // Eliminado
-    },  dealershipName: {
-    fontSize: '2.5rem', // Aumentado para igualar al heroTitle
+  headerContent: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerBrand: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  gasmeLogo: {
+    flexShrink: 0,
+    width: '280px',
+    height: '220px',
+    objectFit: 'contain',
+    display: 'block',
+    marginTop: '-60px',
+    marginBottom: '-60px',
+    marginLeft: '-40px',
+  },
+  dealershipInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    textAlign: 'center',
+  },
+  dealershipName: {
+    fontSize: '2.5rem',
     fontWeight: 'bold',
     color: '#000000',
     margin: 0,
     letterSpacing: '0.5px',
-    lineHeight: 1.1, // Mejorar el espaciado de línea para texto grande
+    lineHeight: 1.1,
   },
-  contactInfo: {
+  headerRight: {
     display: 'flex',
-    gap: '1.5rem',
-    fontSize: '1.1rem',
-    color: '#666',
+    alignItems: 'center',
+    gap: '2rem',
+  },
+  contactItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  },
+  contactLabel: {
+    fontSize: '0.75rem',
+    color: '#6b7280',
+    display: 'block',
+  },
+  contactNumber: {
+    fontSize: '0.875rem',
+    fontWeight: '600',
+    color: '#111827',
+    display: 'block',
   },
   heroBanner: {
     backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(/oz2.png)',
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    padding: '10rem 2rem', // Aumentado el padding para mostrar más de la imagen de fondo
+    padding: '10rem 2rem',
     textAlign: 'center',
     flexShrink: 0,
     position: 'relative',
@@ -607,13 +823,6 @@ const styles = {
     color: '#9ca3af',
     margin: 0,
   },
-  bookmarkButton: {
-    background: 'none',
-    border: 'none',
-    cursor: 'pointer',
-    padding: '0.25rem',
-    flexShrink: 0,
-  },
   jobTags: {
     display: 'flex',
     gap: '0.5rem',
@@ -732,16 +941,20 @@ const styles = {
     gridTemplateColumns: '1fr 1fr',
     gap: '1.5rem',
     marginBottom: '1.5rem',
+    textAlign: 'center',
+    justifyContent: 'center',
   },
   detailsLabel: {
     fontSize: '0.875rem',
     fontWeight: '600',
     color: '#6b7280',
     marginBottom: '0.5rem',
+    textAlign: 'center',
   },
   detailsValue: {
     fontSize: '0.875rem',
     color: '#111827',
+    textAlign: 'center',
   },
   descriptionSection: {
     marginBottom: '1.5rem',
@@ -770,6 +983,294 @@ const styles = {
     fontSize: '1rem',
     fontWeight: '600',
     transition: 'background-color 0.2s',
+  },
+  // Footer Styles
+  footer: {
+    backgroundColor: '#1f2937',
+    color: '#ffffff',
+    marginTop: 'auto',
+  },
+  footerContent: {
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '3rem 2rem',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '2rem',
+  },
+  footerColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  footerLogo: {
+    width: '120px',
+    height: 'auto',
+    marginBottom: '1rem',
+    backgroundColor: '#ffffff',
+    padding: '0.5rem',
+    borderRadius: '0.5rem',
+  },
+  footerBrand: {
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    marginBottom: '0.5rem',
+    textAlign: 'center',
+  },
+  footerDescription: {
+    fontSize: '0.875rem',
+    color: '#d1d5db',
+    lineHeight: '1.6',
+    textAlign: 'center',
+  },
+  footerTitle: {
+    fontSize: '1.125rem',
+    fontWeight: 'bold',
+    marginBottom: '1rem',
+    color: '#ffffff',
+    textAlign: 'center',
+  },
+  footerList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+  },
+  footerListItem: {
+    marginBottom: '0.75rem',
+    fontSize: '0.875rem',
+    color: '#d1d5db',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center', // Added to center list items
+    textAlign: 'center',
+  },
+  footerLink: {
+    color: '#d1d5db',
+    textDecoration: 'none',
+    transition: 'color 0.2s',
+  },
+  footerContactInfo: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1rem',
+    marginBottom: '1.5rem',
+  },
+  footerContactItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '0.75rem',
+  },
+  footerContactLabel: {
+    fontSize: '0.75rem',
+    color: '#9ca3af',
+    margin: '0 0 0.25rem 0',
+  },
+  footerContactLink: {
+    fontSize: '0.875rem',
+    color: '#d1d5db',
+    textDecoration: 'none',
+    fontWeight: '500',
+  },
+  socialMedia: {
+    display: 'flex',
+    gap: '1rem',
+  },
+  socialLink: {
+    width: '36px',
+    height: '36px',
+    backgroundColor: '#374151',
+    borderRadius: '50%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#ffffff',
+    textDecoration: 'none',
+    transition: 'background-color 0.2s',
+  },
+  footerBottom: {
+    borderTop: '1px solid #374151',
+    padding: '1.5rem 2rem',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  copyright: {
+    fontSize: '0.875rem',
+    color: '#9ca3af',
+    margin: 0,
+  },
+  footerLinks: {
+    display: 'flex',
+    gap: '1rem',
+    alignItems: 'center',
+  },
+  footerBottomLink: {
+    fontSize: '0.875rem',
+    color: '#9ca3af',
+    textDecoration: 'none',
+  },
+  separator: {
+    color: '#4b5563',
+  },
+};
+
+const mobileStyles = {
+  header: {
+    padding: '1rem',
+    top: 0,
+    zIndex: 100,
+  },
+  headerContent: {
+    flexDirection: 'column',
+    gap: '0',
+    alignItems: 'stretch',
+  },
+  headerBrand: {
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '0.5rem',
+    marginBottom: '0',
+  },
+  gasmeLogo: {
+    width: '180px',
+    height: '135px',
+    margin: '0',
+    objectFit: 'contain',
+  },
+  dealershipInfo: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  dealershipName: {
+    fontSize: '1.5rem',
+    textAlign: 'center',
+    letterSpacing: '0.5px',
+    margin: '0',
+  },
+  mobileTrackingButton: {
+    width: '100%',
+    marginTop: '1rem',
+    display: 'flex',
+    justifyContent: 'center',
+  },
+  mobileContactToggle: {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    width: '56px',
+    height: '56px',
+    backgroundColor: '#c3002f',
+    border: 'none',
+    borderRadius: '50%',
+    color: '#ffffff',
+    cursor: 'pointer',
+    boxShadow: '0 4px 12px rgba(195, 0, 47, 0.4)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    transition: 'transform 0.2s',
+  },
+  mobileContactPanel: {
+    position: 'fixed',
+    bottom: '90px',
+    right: '20px',
+    width: '280px',
+    maxHeight: '400px',
+    overflowY: 'auto',
+    backgroundColor: '#ffffff',
+    borderRadius: '1rem',
+    boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+    zIndex: 999,
+    animation: 'slideUp 0.3s ease-out',
+  },
+  mobileContactHeader: {
+    padding: '1rem',
+    backgroundColor: '#c3002f',
+    color: '#ffffff',
+    borderTopLeftRadius: '1rem',
+    borderTopRightRadius: '1rem',
+    fontWeight: 'bold',
+    fontSize: '1rem',
+    textAlign: 'center',
+  },
+  mobileContactContent: {
+    padding: '1rem',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '0.75rem',
+  },
+  mobileContactItem: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '0.75rem',
+    padding: '0.75rem',
+    backgroundColor: '#f9fafb',
+    borderRadius: '0.5rem',
+    borderLeft: '3px solid #c3002f',
+  },
+  mobileContactLabel: {
+    fontSize: '0.75rem',
+    color: '#6b7280',
+    fontWeight: '600',
+    marginBottom: '0.25rem',
+  },
+  mobileContactNumber: {
+    fontSize: '0.95rem',
+    fontWeight: '600',
+    color: '#111827',
+    textDecoration: 'none',
+    display: 'block',
+  },
+  heroBanner: {
+    padding: '5rem 1rem',
+  },
+  heroTitle: {
+    fontSize: '1.75rem',
+  },
+  mainContent: {
+    flexDirection: 'column',
+    padding: '1rem',
+    gap: '1rem',
+  },
+  sidebar: {
+    display: 'none',
+  },
+  jobsGrid: {
+    gridTemplateColumns: '1fr',
+  },
+  searchBar: {
+    flexDirection: 'column',
+  },
+  detailsPanel: {
+    width: 'auto',
+    left: '1rem',
+    right: '1rem',
+    top: '1rem',
+    bottom: '1rem',
+    maxHeight: 'calc(100% - 2rem)',
+  },
+  detailsGrid: {
+    gridTemplateColumns: '1fr',
+  },
+  footer: {
+    padding: '2rem 1rem',
+  },
+  footerContent: {
+    gridTemplateColumns: '1fr',
+    gap: '2rem',
+    padding: '2rem 0',
+  },
+  footerBottom: {
+    flexDirection: 'column',
+    gap: '1rem',
+    textAlign: 'center',
+  },
+  footerLinks: {
+    flexDirection: 'column',
   },
 };
 

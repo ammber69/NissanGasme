@@ -3,6 +3,13 @@ import { X, Upload, CheckCircle } from 'lucide-react';
 
 const Registro = ({ job, onClose }) => {
   const [submitted, setSubmitted] = useState(false);
+  const [cvFile, setCvFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      setCvFile(e.target.files[0]);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -10,7 +17,9 @@ const Registro = ({ job, onClose }) => {
     setSubmitted(true);
     setTimeout(() => {
       onClose();
+      // Reset states
       setSubmitted(false);
+      setCvFile(null);
     }, 3000);
   };
 
@@ -56,10 +65,25 @@ const Registro = ({ job, onClose }) => {
 
               <div style={styles.formGroup}>
                 <label style={styles.label}>Currículum Vitae (PDF)</label>
-                <div style={styles.uploadBox}>
-                  <Upload size={24} color="#6b7280" />
-                  <span style={styles.uploadText}>Haz clic o arrastra tu archivo aquí</span>
-                  <input type="file" accept=".pdf,.doc,.docx" style={styles.fileInput} />
+                <div style={{ ...styles.uploadBox, ...(cvFile && styles.uploadBoxSuccess) }}>
+                  {cvFile ? (
+                    <>
+                      <CheckCircle size={24} color="#10b981" />
+                      <span style={{ ...styles.uploadText, color: '#0f766e' }}>{cvFile.name}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={24} color="#6b7280" />
+                      <span style={styles.uploadText}>Haz clic o arrastra tu archivo aquí</span>
+                    </>
+                  )}
+                  <input 
+                    type="file" 
+                    accept=".pdf,.doc,.docx" 
+                    style={styles.fileInput} 
+                    onChange={handleFileChange}
+                    required 
+                  />
                 </div>
               </div>
 
@@ -179,11 +203,16 @@ const styles = {
     cursor: 'pointer',
     position: 'relative',
     backgroundColor: '#f9fafb',
-    transition: 'border-color 0.2s',
+    transition: 'all 0.2s',
+  },
+  uploadBoxSuccess: {
+    backgroundColor: '#eefbf3',
+    borderColor: '#10b981',
   },
   uploadText: {
     fontSize: '0.875rem',
     color: '#6b7280',
+    textAlign: 'center',
   },
   fileInput: {
     position: 'absolute',
