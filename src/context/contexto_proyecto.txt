@@ -45,3 +45,6 @@ Este proyecto es un portal de empleo moderno y funcional construido con React y 
 -   `Inicio.jsx`: El corazón de la aplicación. Gestiona la visualización de vacantes, filtros, y la interacción entre la lista de empleos y el panel de detalles.
 -   `Registro.jsx`: Modal de formulario para la aplicación a una vacante.
 -   `Estados.jsx`: Modal para el seguimiento del estado de la postulación del candidato.
+
+## Instrucciones del Agente
+-   **Repositorio GitHub:** La URL del repositorio de GitHub para este proyecto es `https://github.com/ammber69/NissanGasme`. Se debe usar esta URL cuando se solicite subir cambios.
