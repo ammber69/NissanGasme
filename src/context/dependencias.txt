@@ -1,5 +1,46 @@
-Listado de dependencias externas instaladas manualmente en el proyecto:
+# Dependencias del Proyecto
 
-1. lucide-react
-   - Comando: npm install lucide-react
-   - Uso: Proporciona los iconos SVG utilizados en toda la interfaz (iconos de maletín, búsqueda, cerrar, check, reloj, etc.) en los componentes Inicio.jsx, Registro.jsx y Estados.jsx.
+Este archivo lista todas las dependencias y devDependencies del proyecto, con una breve descripción de su propósito.
+
+## Dependencias de Producción (dependencies)
+
+- **lucide-react (^0.562.0):**
+  - **Comando:** `npm install lucide-react`
+  - **Uso:** Proporciona un conjunto de iconos SVG utilizados en la interfaz de usuario para mejorar la experiencia visual. Se usa en componentes como `Inicio.jsx`, `Registro.jsx`, y `Estados.jsx`.
+
+- **react (^19.2.0):**
+  - **Comando:** `npm install react`
+  - **Uso:** Biblioteca fundamental para construir la interfaz de usuario del proyecto.
+
+- **react-dom (^19.2.0):**
+  - **Comando:** `npm install react-dom`
+  - **Uso:** Paquete que provee los métodos específicos del DOM para React, permitiendo montar la aplicación en el navegador.
+
+## Dependencias de Desarrollo (devDependencies)
+
+- **@eslint/js (^9.39.1):**
+  - **Uso:** Proporciona las configuraciones y reglas de ESLint para JavaScript.
+
+- **@types/react (^19.2.5):**
+  - **Uso:** Contiene las definiciones de tipos de TypeScript para React.
+
+- **@types/react-dom (^19.2.3):**
+  - **Uso:** Contiene las definiciones de tipos de TypeScript para React DOM.
+
+- **@vitejs/plugin-react (^5.1.1):**
+  - **Uso:** Plugin oficial de Vite que proporciona una integración rápida y sencilla con React.
+
+- **eslint (^9.39.1):**
+  - **Uso:** Herramienta de linting para identificar y reportar patrones problemáticos en el código JavaScript.
+
+- **eslint-plugin-react-hooks (^7.0.1):**
+  - **Uso:** Plugin de ESLint que refuerza las reglas de los Hooks de React.
+
+- **eslint-plugin-react-refresh (^0.4.24):**
+  - **Uso:** Plugin de ESLint para habilitar "Fast Refresh" (actualizaciones en caliente) en React.
+
+- **globals (^16.5.0):**
+  - **Uso:** Proporciona un conjunto de variables globales para ESLint.
+
+- **vite (npm:rolldown-vite@7.2.5):**
+  - **Uso:** Herramienta de frontend para el desarrollo y construcción de proyectos web modernos y rápidos. La versión utilizada es un fork que utiliza Rolldown.
