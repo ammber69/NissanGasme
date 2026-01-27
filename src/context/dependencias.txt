@@ -44,3 +44,8 @@ Este archivo lista todas las dependencias y devDependencies del proyecto, con un
 
 - **vite (npm:rolldown-vite@7.2.5):**
   - **Uso:** Herramienta de frontend para el desarrollo y construcción de proyectos web modernos y rápidos. La versión utilizada es un fork que utiliza Rolldown.
+
+
+
+
+  Cambios 
