@@ -1,16 +1,54 @@
-# React + Vite
+# Portal de Empleo "Gasme Automotriz" 🚗
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Logo de Gasme](public/gasme.png)
 
-Currently, two official plugins are available:
+Este es un portal de empleo moderno y funcional construido con React y Vite, diseñado para que "Gasme Automotriz" (un concesionario de Nissan) pueda publicar sus vacantes y gestionar las solicitudes de los candidatos de manera eficiente.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Características Principales
 
-## React Compiler
+-   **Búsqueda y Visualización de Vacantes:** Interfaz principal con tarjetas de empleo claras y atractivas.
+-   **Filtrado Avanzado:** Filtra las vacantes por palabra clave, rango salarial, nivel de experiencia y ubicación.
+-   **Detalle de la Vacante:** Panel lateral con descripción detallada del puesto, requisitos y salario.
+-   **Proceso de Aplicación Simplificado:** Formulario modal para que los candidatos ingresen sus datos y adjunten su CV.
+-   **Seguimiento de Postulación:** Una funcionalidad innovadora que permite a los candidatos rastrear el estado de su solicitud con un código único.
+-   **Diseño Responsivo:** Interfaz optimizada para una experiencia perfecta en dispositivos de escritorio y móviles.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Tecnologías Utilizadas
 
-## Expanding the ESLint configuration
+-   **Framework Frontend:** ![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
+-   **Herramienta de Build:** ![Vite](https://img.shields.io/badge/Vite-black?style=for-the-badge&logo=vite)
+-   **Librería de Iconos:** `lucide-react`
+-   **Estilos:** CSS-in-JS (Objetos de estilo en componentes)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Instalación y Puesta en Marcha
+
+Para ejecutar este proyecto en tu entorno local, sigue estos pasos:
+
+1.  **Clona el repositorio:**
+    ```bash
+    git clone https://github.com/ammber69/NissanGasme.git
+    ```
+
+2.  **Navega al directorio del proyecto:**
+    ```bash
+    cd NissanGasme
+    ```
+
+3.  **Instala las dependencias:**
+    ```bash
+    npm install
+    ```
+
+4.  **Inicia el servidor de desarrollo:**
+    ```bash
+    npm run dev
+    ```
+    ¡Y listo! Abre [http://localhost:5173](http://localhost:5173) (o el puerto que indique la consola) en tu navegador para ver la aplicación en acción.
+
+## 🖼️ Vistas de la Aplicación
+
+| Vista de Escritorio                                | Vista Móvil                               |
+| -------------------------------------------------- | ----------------------------------------- |
+| ![Vista de Escritorio](public/oz2.png)             | ![Vista Móvil](public/65.png)             |
+
+---
