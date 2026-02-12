@@ -49,6 +49,6 @@ Para ejecutar este proyecto en tu entorno local, sigue estos pasos:
 
 | Vista de Escritorio                                | Vista Móvil                               |
 | -------------------------------------------------- | ----------------------------------------- |
-| ![Vista de Escritorio](public/oz2.png)             | ![Vista Móvil](public/65.png)             |
+| ![Vista de Escritorio](public/VistaPC.png)             | ![Vista Móvil](public/VistaMobile.png)             |
 
 ---
