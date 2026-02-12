@@ -729,19 +729,6 @@ const JobPortal = () => {
           <button 
             style={{
               ...mobileStyles.bottomNavItem,
-              ...(activeTab === 'saved' ? mobileStyles.bottomNavItemActive : {})
-            }}
-            onClick={() => setActiveTab('saved')}
-          >
-            <Bookmark size={24} />
-            <span style={mobileStyles.bottomNavLabel}>Guardados</span>
-            {savedJobs.length > 0 && (
-              <span style={mobileStyles.badge}>{savedJobs.length}</span>
-            )}
-          </button>
-          <button 
-            style={{
-              ...mobileStyles.bottomNavItem,
               ...(activeTab === 'tracking' ? mobileStyles.bottomNavItemActive : {})
             }}
             onClick={() => setActiveTab('tracking')}
@@ -1527,7 +1514,7 @@ const styles = {
 const mobileStyles = {
   // Header Mobile - Estilo redes sociales
   header: {
-    padding: '1rem',
+    padding: '0.5rem 1rem',
     position: 'sticky',
     top: 0,
     zIndex: 100,
@@ -1548,8 +1535,8 @@ const mobileStyles = {
     gap: '0.75rem',
   },
   gasmeLogo: {
-    width: '45px',
-    height: '45px',
+    width: '90px',
+    height: '90px',
     objectFit: 'contain',
   },
   dealershipName: {
