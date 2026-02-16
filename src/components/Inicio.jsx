@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Phone, Menu, MapPin as Location, Facebook, Instagram, Twitter, Filter, Home, FileText, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Phone, Menu, MapPin as Location, Facebook, Instagram, Mail, Filter, Home, FileText, ChevronDown } from 'lucide-react';
 import Registro from './Registro';
 import TrackingPostulacion from './Estados';
 import JobCard from './JobCard';
@@ -39,9 +39,16 @@ const JobPortal = () => {
     location: 'Todas las agencias'
   });
   const [locationDropdown, setLocationDropdown] = useState(false);
+  const [contactFeedback, setContactFeedback] = useState('');
 
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
+
+  const handleCopy = (text, type) => {
+    navigator.clipboard.writeText(text);
+    setContactFeedback(`${type} copiado`);
+    setTimeout(() => setContactFeedback(''), 2000);
+  };
 
   // Cargar trabajos al iniciar o cambiar filtros
   useEffect(() => {
@@ -324,9 +331,45 @@ const JobPortal = () => {
         {showFilters && isMobile && (
           <div style={mobileStyles.filtersOverlay} onClick={() => setShowFilters(false)}>
             <div style={mobileStyles.filtersContent} onClick={(e) => e.stopPropagation()}>
-              <h3>Filtros</h3>
-              {/* Simplified filters implementation for mobile */}
-              <button onClick={() => setShowFilters(false)} style={mobileStyles.filtersApplyButton}>Cerrar</button>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#111827' }}>Filtros</h3>
+                <button onClick={() => setShowFilters(false)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#6b7280' }}>&times;</button>
+              </div>
+
+              <div style={styles.filterSection}>
+                <h4 style={styles.filterTitle}>Ordenar Por</h4>
+                <div style={styles.radioGroup}>
+                  <label style={mobileStyles.filterOption}>
+                    <input type="radio" name="sortMobile" value="recent" checked={filters.sortBy === 'recent'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
+                    <span style={{ fontSize: '1rem' }}>Más Reciente</span>
+                  </label>
+                  <label style={mobileStyles.filterOption}>
+                    <input type="radio" name="sortMobile" value="alpha" checked={filters.sortBy === 'alpha'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
+                    <span style={{ fontSize: '1rem' }}>A-Z</span>
+                  </label>
+                </div>
+              </div>
+
+              <div style={styles.filterSection}>
+                <h4 style={styles.filterTitle}>Ubicación</h4>
+                <div style={{ position: 'relative' }}>
+                  <select
+                    style={mobileStyles.filterSelect}
+                    value={filters.location}
+                    onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                  >
+                    {locations.map(loc => (
+                      <option key={loc} value={loc}>{loc}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={20} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9ca3af' }} />
+                </div>
+              </div>
+
+              <button onClick={() => setShowFilters(false)} style={mobileStyles.filtersApplyButton}>
+                Ver {filteredJobs.length} Resultados
+              </button>
             </div>
           </div>
         )}
@@ -378,18 +421,45 @@ const JobPortal = () => {
         <div style={mobileStyles.menuOverlay} onClick={() => setShowMobileMenu(false)}>
           <div style={mobileStyles.menuContent} onClick={e => e.stopPropagation()}>
             <h3>Contacto</h3>
-            <div style={mobileStyles.contactItem}>
+
+            {contactFeedback && (
+              <div style={{
+                position: 'absolute',
+                top: '1rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                backgroundColor: '#10b981',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '2rem',
+                fontSize: '0.85rem',
+                fontWeight: 'bold',
+                zIndex: 10,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+              }}>
+                {contactFeedback}
+              </div>
+            )}
+
+            <div style={{ ...mobileStyles.contactItem, cursor: 'pointer', active: { opacity: 0.7 } }} onClick={() => handleCopy('+52 271 716 6612', 'Teléfono')}>
               <Phone size={20} />
-              <span>271 712 3456</span>
+              <span>+52 271 716 6612</span>
+            </div>
+            <div style={{ ...mobileStyles.contactItem, cursor: 'pointer' }} onClick={() => handleCopy('ventas.digitales@gasme.mx', 'Correo')}>
+              <Mail size={20} />
+              <span>ventas.digitales@gasme.mx</span>
             </div>
             <div style={mobileStyles.contactItem}>
-              <Location size={20} />
-              <span>Av. 3 No. 123, Centro, Córdoba</span>
+              <Location size={20} style={{ minWidth: '20px' }} /> {/* minWidth para evitar que se aplaste con texto largo */}
+              <span style={{ fontSize: '0.9rem' }}>Boulevard Córdoba - Fortín Km 334 # 104, Córdoba, Mexico, 94540</span>
             </div>
             <div style={mobileStyles.socialIcons}>
-              <Facebook size={24} />
-              <Instagram size={24} />
-              <Twitter size={24} />
+              <a href="https://www.facebook.com/NissanGasmeOficial" target="_blank" rel="noopener noreferrer" style={{ color: '#1877F2', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', background: '#f0f9ff', borderRadius: '50%' }}>
+                <Facebook size={32} />
+              </a>
+              <a href="https://www.instagram.com/nissan_gasme?fbclid=IwY2xjawQAe1BleHRuA2FlbQIxMABicmlkETJHNGdLVFlnZGExRjZHUktIc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHvqLyESEitNzfZ5dnIsyCzfk-jas9rbIq1VU4g6U53l6B3PopraNe-2zmnRy_aem_P_7OVKQAVoW3IVZN2Ees1w" target="_blank" rel="noopener noreferrer" style={{ color: '#E4405F', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', background: '#fff0f5', borderRadius: '50%' }}>
+                <Instagram size={32} />
+              </a>
             </div>
             <button style={mobileStyles.closeMenuButton} onClick={() => setShowMobileMenu(false)}>Cerrar</button>
           </div>
@@ -838,17 +908,37 @@ const mobileStyles = {
     borderTopRightRadius: '1.5rem',
     boxShadow: '0 -10px 25px -5px rgba(0, 0, 0, 0.1)',
   },
-  filtersApplyButton: {
+  filterOption: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '1rem',
+    padding: '0.75rem',
+    backgroundColor: '#f9fafb',
+    borderRadius: '0.75rem',
+    border: '1px solid #e5e7eb',
+    marginBottom: '0.5rem',
+  },
+  filterSelect: {
     width: '100%',
     padding: '1rem',
-    backgroundColor: '#1f2937',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '1rem',
-    marginTop: '1.5rem',
     fontSize: '1rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #d1d5db',
+    backgroundColor: '#f9fafb',
+    color: '#374151',
+    appearance: 'none',
+  },
+  filtersApplyButton: {
+    marginTop: '1.5rem',
+    padding: '1rem',
+    backgroundColor: '#c3002f',
+    color: '#ffffff',
+    borderRadius: '0.75rem',
+    border: 'none',
     fontWeight: 'bold',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+    fontSize: '1rem',
+    width: '100%',
+    boxShadow: '0 4px 6px -1px rgba(195, 0, 47, 0.3)',
   },
   jobsGrid: {
     display: 'flex',

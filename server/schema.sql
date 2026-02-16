@@ -114,8 +114,8 @@ CREATE TABLE IF NOT EXISTS candidatos (
   ubicacion        VARCHAR(200),
   fecha_nacimiento DATE,
   genero           VARCHAR(20),
-  experiencia      VARCHAR(80),
-  educacion        VARCHAR(80),
+  experiencia      TEXT,
+  educacion        TEXT,
   empresa_actual   VARCHAR(120),
   puesto_actual    VARCHAR(120),
   descripcion      TEXT,
@@ -125,6 +125,7 @@ CREATE TABLE IF NOT EXISTS candidatos (
   modalidad_pref   VARCHAR(40),
   salario_esperado DECIMAL(12,2),
   referencias      TEXT,
+  cv_text          TEXT,         -- texto crudo extraído del PDF
   cv_url           TEXT,         -- ruta o URL del CV subido
   creado_en        TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   actualizado_en   TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
