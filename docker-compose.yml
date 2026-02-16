@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./server
+    container_name: gasme_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      # Conexión a la BD del host
+      - DB_HOST=host.docker.internal
+      - DB_USER=postgres
+      - DB_PASSWORD=password # CAMBIAR SI ES NECESARIO EN PRODUCCION
+      - DB_NAME=gasme_jobs_db
+      - DB_PORT=5432
+    volumes:
+      - ./server/uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    build: .
+    container_name: gasme_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
