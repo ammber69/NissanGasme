@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import { X, Search, CheckCircle, Clock, FileText, Calendar, XCircle, AlertCircle } from 'lucide-react';
 
-const TrackingPostulacion = () => {
-  const [showModal, setShowModal] = useState(false);
+const TrackingPostulacion = ({
+  showModal: externalShowModal,
+  setShowModal: externalSetShowModal,
+  hideButton = false
+}) => {
+  const [internalShowModal, setInternalShowModal] = useState(false);
+
+  const showModal = externalShowModal !== undefined ? externalShowModal : internalShowModal;
+  const setShowModal = externalSetShowModal || setInternalShowModal;
+
   const [trackingCode, setTrackingCode] = useState('');
   const [applicationData, setApplicationData] = useState(null);
   const [error, setError] = useState('');
@@ -77,14 +85,14 @@ const TrackingPostulacion = () => {
   const handleSearch = () => {
     setError('');
     const cleanCode = trackingCode.trim().toUpperCase();
-    
+
     if (!cleanCode) {
       setError('Por favor ingresa tu código de postulación');
       return;
     }
 
     const application = mockApplications[cleanCode];
-    
+
     if (application) {
       setApplicationData(application);
     } else {
@@ -151,9 +159,11 @@ const TrackingPostulacion = () => {
   return (
     <>
       {/* Botón para abrir el modal */}
-      <button onClick={() => setShowModal(true)} style={styles.triggerButton}>
-        Ver Mi Postulación
-      </button>
+      {!hideButton && (
+        <button onClick={() => setShowModal(true)} style={styles.triggerButton}>
+          Ver Mi Postulación
+        </button>
+      )}
 
       {/* Modal */}
       {showModal && (
@@ -263,7 +273,7 @@ const TrackingPostulacion = () => {
                     {applicationData.timeline.map((step, index) => {
                       const statusInfo = getStatusInfo(step.status);
                       const Icon = statusInfo.icon;
-                      
+
                       return (
                         <div key={index} style={styles.timelineItem}>
                           <div style={styles.timelineLeft}>
