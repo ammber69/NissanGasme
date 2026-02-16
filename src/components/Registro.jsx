@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { X, Upload, CheckCircle } from 'lucide-react';
+import { X, Upload, CheckCircle, Loader2 } from 'lucide-react';
+import { submitApplication, extractCVData } from '../api/api';
 
 const Registro = ({ job, onClose }) => {
   const [submitted, setSubmitted] = useState(false);
   const [cvFile, setCvFile] = useState(null);
-  const [manualEntry, setManualEntry] = useState(false); // Nuevo estado para alternar modo
+  const [manualEntry, setManualEntry] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
 
   // Estados para campos manuales
   const [formData, setFormData] = useState({
@@ -15,7 +18,8 @@ const Registro = ({ job, onClose }) => {
     experiencia: '',
     educacion: '',
     puestoActual: '',
-    mensaje: ''
+    mensaje: '',
+    cv_text: '' // Almacenar texto crudo del CV
   });
 
   const handleInputChange = (e) => {
@@ -23,33 +27,82 @@ const Registro = ({ job, onClose }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     if (e.target.files.length > 0) {
-      setCvFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setCvFile(file);
+      setError(null);
+
+      // Iniciar análisis automático
+      setIsAnalyzing(true);
+      try {
+        const result = await extractCVData(file);
+        if (result.success && result.data) {
+          const { email, phone, text, experiencia, educacion, nombre } = result.data;
+
+          setFormData(prev => ({
+            ...prev,
+            nombre: nombre || prev.nombre,
+            email: email || prev.email,
+            telefono: phone || prev.telefono,
+            experiencia: experiencia || prev.experiencia,
+            educacion: educacion || prev.educacion,
+            cv_text: text || ''
+          }));
+
+          // Cambiar a vista manual para que el usuario verifique/complete
+          setManualEntry(true);
+        }
+      } catch (err) {
+        console.error("Error analizando CV:", err);
+        setError("No pudimos leer los datos automáticamente, por favor completa el formulario.");
+        setManualEntry(true); // Mostrar formulario de todos modos
+      } finally {
+        setIsAnalyzing(false);
+      }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Enviando postulación:", {
-      jobId: job.id,
-      ...formData,
-      cv: manualEntry ? 'Manual Entry' : cvFile?.name,
-      mode: manualEntry ? 'manual' : 'file'
-    });
+    setError(null);
 
-    setSubmitted(true);
-    setTimeout(() => {
-      onClose();
-      // Reset states
-      setSubmitted(false);
-      setCvFile(null);
-      setManualEntry(false);
-      setFormData({
-        nombre: '', email: '', telefono: '', ubicacion: '',
-        experiencia: '', educacion: '', puestoActual: '', mensaje: ''
-      });
-    }, 3000);
+    try {
+      const dataToSend = new FormData();
+      dataToSend.append('jobId', job.id);
+      dataToSend.append('nombre', formData.nombre);
+      dataToSend.append('email', formData.email);
+      dataToSend.append('telefono', formData.telefono);
+      dataToSend.append('ubicacion', formData.ubicacion);
+      dataToSend.append('experiencia', formData.experiencia);
+      dataToSend.append('educacion', formData.educacion);
+      dataToSend.append('puestoActual', formData.puestoActual);
+      dataToSend.append('mensaje', formData.mensaje);
+      dataToSend.append('cv_text', formData.cv_text);
+
+      if (cvFile) {
+        dataToSend.append('cv', cvFile);
+      }
+
+      await submitApplication(dataToSend);
+
+      setSubmitted(true);
+      setTimeout(() => {
+        onClose();
+        // Reset states
+        setSubmitted(false);
+        setCvFile(null);
+        setManualEntry(false);
+        setFormData({
+          nombre: '', email: '', telefono: '', ubicacion: '',
+          experiencia: '', educacion: '', puestoActual: '', mensaje: '', cv_text: ''
+        });
+      }, 3000);
+
+    } catch (err) {
+      console.error("Error enviando postulación:", err);
+      setError("Hubo un error al enviar tu solicitud. Intenta nuevamente.");
+    }
   };
 
   if (!job) return null;
@@ -115,10 +168,13 @@ const Registro = ({ job, onClose }) => {
                     type="tel"
                     name="telefono"
                     value={formData.telefono}
-                    onChange={handleInputChange}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setFormData(prev => ({ ...prev, telefono: val }));
+                    }}
                     required
                     style={styles.input}
-                    placeholder="(123) 456-7890"
+                    placeholder="Ej. 1234567890"
                   />
                 </div>
               </div>
@@ -144,6 +200,21 @@ const Registro = ({ job, onClose }) => {
               {manualEntry ? (
                 /* Formulario Manual Completo */
                 <div style={styles.manualFormContainer}>
+                  {/* Aviso de análisis */}
+                  {cvFile && !isAnalyzing && (
+                    <div style={{
+                      backgroundColor: '#eff6ff',
+                      padding: '0.75rem',
+                      borderRadius: '0.5rem',
+                      border: '1px solid #dbeafe',
+                      color: '#1e40af',
+                      fontSize: '0.9rem',
+                      marginBottom: '0.5rem'
+                    }}>
+                      Hemos extraído algunos datos de tu CV. Por favor verifícalos.
+                    </div>
+                  )}
+
                   <div style={styles.row}>
                     <div style={styles.formGroup}>
                       <label style={styles.label}>Ubicación / Ciudad</label>
@@ -201,7 +272,12 @@ const Registro = ({ job, onClose }) => {
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Currículum Vitae (PDF)</label>
                   <div style={{ ...styles.uploadBox, ...(cvFile && styles.uploadBoxSuccess) }}>
-                    {cvFile ? (
+                    {isAnalyzing ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+                        <Loader2 size={32} color="#c3002f" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+                        <span style={styles.uploadText}>Analizando documento...</span>
+                      </div>
+                    ) : cvFile ? (
                       <>
                         <CheckCircle size={24} color="#10b981" />
                         <span style={{ ...styles.uploadText, color: '#0f766e' }}>{cvFile.name}</span>
@@ -211,6 +287,7 @@ const Registro = ({ job, onClose }) => {
                           onClick={(e) => {
                             e.preventDefault();
                             setCvFile(null);
+                            setFormData(prev => ({ ...prev, cv_text: '' }));
                           }}
                         >
                           Cambiar archivo
@@ -220,22 +297,26 @@ const Registro = ({ job, onClose }) => {
                       <>
                         <Upload size={24} color="#6b7280" />
                         <span style={styles.uploadText}>Haz clic o arrastra tu archivo aquí</span>
-                        <span style={styles.uploadSubtext}>Formato PDF, Word (Max 5MB)</span>
+                        <span style={styles.uploadSubtext}>Formato PDF (Max 5MB)</span>
+                        <span style={{ fontSize: '0.8rem', color: '#c3002f', marginTop: '0.5rem' }}>
+                          Al subir tu CV, llenaremos el formulario automáticamente
+                        </span>
                       </>
                     )}
                     <input
                       type="file"
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf"
                       style={styles.fileInput}
                       onChange={handleFileChange}
                       required={!manualEntry}
+                      disabled={isAnalyzing}
                     />
                   </div>
                 </div>
               )}
 
               <div style={styles.formGroup}>
-                <label style={styles.label}>Mensaje Adicional (Opcional)</label>
+                <label style={styles.label}>Mensaje Adicional ({manualEntry ? 'Opcional' : 'Requerido si no subes CV'})</label>
                 <textarea
                   name="mensaje"
                   value={formData.mensaje}
@@ -246,8 +327,14 @@ const Registro = ({ job, onClose }) => {
                 ></textarea>
               </div>
 
-              <button type="submit" style={styles.submitButton}>
-                {manualEntry ? 'Enviar Solicitud Manual' : 'Enviar Postulación con CV'}
+              {error && (
+                <div style={{ color: '#ef4444', fontSize: '0.9rem', textAlign: 'center' }}>
+                  {error}
+                </div>
+              )}
+
+              <button type="submit" style={styles.submitButton} disabled={isAnalyzing}>
+                {isAnalyzing ? 'Procesando...' : (manualEntry ? 'Enviar Solicitud Manual' : 'Enviar Postulación con CV')}
               </button>
             </form>
           </>

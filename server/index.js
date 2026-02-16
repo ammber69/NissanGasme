@@ -12,9 +12,14 @@ app.use(express.json());
 
 // Importar rutas
 const vacantesRoutes = require('./routes/vacantes.routes');
+const cvRoutes = require('./routes/cv.routes');
+const applicationsRoutes = require('./routes/applications.routes');
 
 // Usar rutas
 app.use('/api/vacantes', vacantesRoutes);
+app.use('/api/cv', cvRoutes);
+app.use('/api/applications', applicationsRoutes);
+app.use('/uploads', express.static('server/uploads'));
 
 // Test DB Connection Route
 app.get('/api/health', async (req, res) => {

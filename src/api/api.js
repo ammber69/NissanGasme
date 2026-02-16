@@ -67,18 +67,40 @@ export const fetchJobById = async (id) => {
  */
 export const submitApplication = async (applicationData) => {
     try {
-        // TODO: Adaptar endpoint en backend para recibir postulaciones en nueva tabla
-        const response = await fetch(`${API_URL}/applications`, { // Mantener temporalmente o actualizar a /postulaciones
+        const isFormData = applicationData instanceof FormData;
+        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+        const body = isFormData ? applicationData : JSON.stringify(applicationData);
+
+        const response = await fetch(`${API_URL}/applications`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(applicationData),
+            headers: headers,
+            body: body,
         });
 
         if (!response.ok) throw new Error('Error submitting application');
         return await response.json();
     } catch (error) {
+        throw error;
+    }
+};
+
+/**
+ * Extrae datos de un archivo CV (PDF)
+ */
+export const extractCVData = async (file) => {
+    try {
+        const formData = new FormData();
+        formData.append('cv', file);
+
+        const response = await fetch(`${API_URL}/cv/extract`, {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) throw new Error('Error extracting CV data');
+        return await response.json();
+    } catch (error) {
+        console.error("Error extraction:", error);
         throw error;
     }
 };
