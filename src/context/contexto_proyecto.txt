@@ -48,3 +48,6 @@ Este proyecto es un portal de empleo moderno y funcional construido con React y 
 
 ## Instrucciones del Agente
 -   **Repositorio GitHub:** La URL del repositorio de GitHub para este proyecto es `https://github.com/ammber69/NissanGasme`. Se debe usar esta URL cuando se solicite subir cambios.
+
+## Cambios Implementados
+- aora estamos trabajando solbre pop os
