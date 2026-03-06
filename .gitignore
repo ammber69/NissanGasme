@@ -118,3 +118,10 @@ dist
 
 # macOS
 .DS_Store
+
+# Project specific
+server/uploads/
+*.log
+.env
+server/.env
+dist/

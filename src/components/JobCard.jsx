@@ -90,7 +90,9 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
             padding: '1.5rem',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            border: '1px solid transparent',
+            borderWidth: '1px',
+            borderStyle: 'solid',
+            borderColor: 'transparent',
             cursor: 'pointer',
             marginBottom: '1rem',
         },
@@ -201,8 +203,8 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
                     </div>
                 </div>
                 <div style={currentStyles.linkedInCardCenter}>
-                    <h3 style={currentStyles.jobTitleLinkedIn}>{job.title}</h3>
-                    <p style={currentStyles.companyNameLinkedIn}>{job.company}</p>
+                    <h3 style={currentStyles.jobTitleLinkedIn}>{job.title || 'Sin Título'}</h3>
+                    <p style={currentStyles.companyNameLinkedIn}>{job.company || 'Nissan Gasme Córdoba'}</p>
                     <div style={currentStyles.jobMetaLinkedIn}>
                         <span style={currentStyles.jobMetaItem}>
                             <MapPin size={14} />
@@ -253,9 +255,9 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
                     <Briefcase size={24} color="#c3002f" />
                 </div>
                 <div style={styles.jobInfo}>
-                    <h3 style={styles.jobTitle}>{job.title}</h3>
-                    <p style={styles.jobCompany}>{job.company}</p>
-                    <p style={styles.jobLocation}>{job.location}</p>
+                    <h3 style={styles.jobTitle}>{job.title || 'Sin Título'}</h3>
+                    <p style={styles.jobCompany}>{job.company || 'Nissan Gasme Córdoba'}</p>
+                    <p style={styles.jobLocation}>{job.location || 'Córdoba, Veracruz'}</p>
                 </div>
                 <button
                     style={styles.iconButton}

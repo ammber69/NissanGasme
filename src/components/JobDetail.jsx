@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Briefcase, MapPin, DollarSign, Clock, Share2, X, ChevronLeft, Bookmark } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Clock, Share2, X, ChevronLeft } from 'lucide-react';
 import Registro from './Registro';
 
-const JobDetail = ({ job, isMobile, onClose, onShare, showCopiedMessage, onSave, isSaved }) => {
+const JobDetail = ({ job, isMobile, onClose, onShare, showCopiedMessage }) => {
     const [showRegistration, setShowRegistration] = useState(false);
 
     // Helper to handle safe property access for API vs Mock data

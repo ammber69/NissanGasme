@@ -4,7 +4,7 @@ import Registro from './Registro';
 import TrackingPostulacion from './Estados';
 import JobCard from './JobCard';
 import JobDetail from './JobDetail';
-import { fetchJobs } from '../api/api';
+import { fetchJobs, fetchSucursales } from '../api/api';
 
 const useWindowWidth = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -20,6 +20,7 @@ const useWindowWidth = () => {
 
 const JobPortal = () => {
   const [jobs, setJobs] = useState([]);
+  const [agencias, setAgencias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -38,7 +39,6 @@ const JobPortal = () => {
     sortBy: 'recent',
     location: 'Todas las agencias'
   });
-  const [locationDropdown, setLocationDropdown] = useState(false);
   const [contactFeedback, setContactFeedback] = useState('');
 
   const windowWidth = useWindowWidth();
@@ -50,28 +50,30 @@ const JobPortal = () => {
     setTimeout(() => setContactFeedback(''), 2000);
   };
 
-  // Cargar trabajos al iniciar o cambiar filtros
+  // Cargar trabajos y agencias al iniciar o cambiar filtros
   useEffect(() => {
-    const loadJobs = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        // En un escenario real pasaríamos los filtros a la API
-        // const data = await fetchJobs({ search: searchTerm, location: filters.location });
-        const data = await fetchJobs();
-        setJobs(data);
+        const [jobsData, agenciasData] = await Promise.all([
+          fetchJobs(),
+          fetchSucursales()
+        ]);
+        setJobs(jobsData);
+        setAgencias(agenciasData);
       } catch (err) {
-        console.error("Error loading jobs:", err);
+        console.error("Error loading data:", err);
         setError("No se pudieron cargar las vacantes. Intenta más tarde.");
       } finally {
         setLoading(false);
       }
     };
 
-    loadJobs();
+    loadData();
   }, []); // Dependencias vacías para carga inicial, la búsqueda local se hace abajo por ahora
 
-  // Calcular ubicaciones únicas
-  const locations = ['Todas las agencias', ...new Set(jobs.map(job => job.location.replace('Nissan Gasme ', '')))];
+  // Calcular ubicaciones únicas para el filtro basadas en el catálogo de agencias de la BD
+  const locations = ['Todas las agencias', ...agencias.map(agencia => agencia.nombre)];
 
   const handleJobClick = (job) => {
     setSelectedJob(job);
@@ -103,12 +105,14 @@ const JobPortal = () => {
       if (filters.location === 'Todas las agencias') {
         return true;
       }
-      return job.location.includes(filters.location);
+      return job.location && job.location.includes(filters.location);
     })
-    .filter(job =>
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    .filter(job => {
+      const title = job.title || '';
+      const location = job.location || '';
+      return title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        location.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
   // Ordenamiento
   const timeToTimestamp = (dateString) => new Date(dateString).getTime();
@@ -138,7 +142,7 @@ const JobPortal = () => {
         <header style={styles.header}>
           <div style={styles.headerContent}>
             <div style={styles.headerBrand}>
-              <img src="/gasme.png" alt="Gasme Logo" style={styles.gasmeLogo} />
+              <img src="/logo-sucursal.png" alt="Gasme Logo" style={styles.gasmeLogo} />
               <div style={styles.dealershipInfo}>
                 <h1 style={styles.dealershipName}>GASME AUTOMOTRIZ</h1>
               </div>
@@ -151,7 +155,7 @@ const JobPortal = () => {
       ) : (
         <div style={mobileStyles.headerMobileWrapper}>
           <div style={mobileStyles.headerTopRow}>
-            <img src="/gasme.png" alt="Gasme Logo" style={mobileStyles.gasmeLogo} />
+            <img src="/logo-sucursal.png" alt="Gasme Logo" style={mobileStyles.gasmeLogo} />
             <h1 style={mobileStyles.dealershipName}>GASME</h1>
           </div>
           <div style={mobileStyles.searchContainer}>
@@ -184,53 +188,6 @@ const JobPortal = () => {
 
       {/* Main Content */}
       <div style={getStyle('mainContent')}>
-        {/* Sidebar Filters - Desktop */}
-        {!isMobile && (
-          <aside style={getStyle('sidebar')}>
-            <h3 style={styles.sidebarTitle}>Filtros</h3>
-
-            <div style={styles.filterSection}>
-              <h4 style={styles.filterTitle}>Ordenar Por</h4>
-              <div style={styles.radioGroup}>
-                <label style={styles.radioLabel}>
-                  <input type="radio" name="sort" value="recent" checked={filters.sortBy === 'recent'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} />
-                  <span>Más Reciente</span>
-                </label>
-                <label style={styles.radioLabel}>
-                  <input type="radio" name="sort" value="alpha" checked={filters.sortBy === 'alpha'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} />
-                  <span>A-Z</span>
-                </label>
-              </div>
-            </div>
-
-            <div style={styles.filterSection}>
-              <h4 style={styles.filterTitle}>Ubicación</h4>
-              <div style={{ position: 'relative' }}>
-                <button style={getStyle('dropdownButton')} onClick={() => setLocationDropdown(!locationDropdown)}>
-                  <span>{filters.location}</span>
-                  <ChevronDown size={16} style={{ transform: locationDropdown ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />
-                </button>
-                {locationDropdown && (
-                  <div style={getStyle('dropdownMenu')}>
-                    {locations.map(loc => (
-                      <div
-                        key={loc}
-                        style={getStyle('dropdownItem')}
-                        onClick={() => {
-                          setFilters({ ...filters, location: loc });
-                          setLocationDropdown(false);
-                        }}
-                      >
-                        {loc}
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </aside>
-        )}
-
         {/* Jobs List */}
         <main style={getStyle('jobsSection')}>
           {/* Search Bar - Desktop */}
@@ -246,6 +203,13 @@ const JobPortal = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+              <button
+                style={{ ...styles.searchButton, backgroundColor: '#f3f4f6', color: '#c3002f', marginRight: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                onClick={() => setShowFilters(true)}
+              >
+                <Filter size={18} />
+                Filtros
+              </button>
               <button style={styles.searchButton}>Buscar</button>
             </div>
           )}
@@ -327,10 +291,10 @@ const JobPortal = () => {
           )
         )}
 
-        {/* Modal Filtros Mobile */}
-        {showFilters && isMobile && (
-          <div style={mobileStyles.filtersOverlay} onClick={() => setShowFilters(false)}>
-            <div style={mobileStyles.filtersContent} onClick={(e) => e.stopPropagation()}>
+        {/* Modal Filtros */}
+        {showFilters && (
+          <div style={isMobile ? mobileStyles.filtersOverlay : styles.modalOverlay} onClick={() => setShowFilters(false)}>
+            <div style={isMobile ? mobileStyles.filtersContent : { ...styles.modalContent, display: 'block', backgroundColor: '#fff', padding: '2rem', height: 'auto', maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h3 style={{ margin: 0, fontSize: '1.25rem', color: '#111827' }}>Filtros</h3>
@@ -341,11 +305,11 @@ const JobPortal = () => {
                 <h4 style={styles.filterTitle}>Ordenar Por</h4>
                 <div style={styles.radioGroup}>
                   <label style={mobileStyles.filterOption}>
-                    <input type="radio" name="sortMobile" value="recent" checked={filters.sortBy === 'recent'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
+                    <input type="radio" name="sortGlobal" value="recent" checked={filters.sortBy === 'recent'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
                     <span style={{ fontSize: '1rem' }}>Más Reciente</span>
                   </label>
                   <label style={mobileStyles.filterOption}>
-                    <input type="radio" name="sortMobile" value="alpha" checked={filters.sortBy === 'alpha'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
+                    <input type="radio" name="sortGlobal" value="alpha" checked={filters.sortBy === 'alpha'} onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })} style={{ width: '20px', height: '20px', accentColor: '#c3002f' }} />
                     <span style={{ fontSize: '1rem' }}>A-Z</span>
                   </label>
                 </div>
@@ -363,7 +327,6 @@ const JobPortal = () => {
                       <option key={loc} value={loc}>{loc}</option>
                     ))}
                   </select>
-                  <ChevronDown size={20} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9ca3af' }} />
                 </div>
               </div>
 
@@ -520,13 +483,13 @@ const styles = {
     flexDirection: 'column',
   },
   gasmeLogo: {
-    height: '80px',
+    height: '60px', /* Reducido de 80px a 60px para verse más sutil */
     width: 'auto',
   },
   dealershipName: {
     fontSize: '2rem',
     fontWeight: '800',
-    color: '#e60000', // Nissan Red approximate
+    color: '#c3002f', // Mismo color del botón "Ver Mi Postulación"
     letterSpacing: '-0.025em',
     margin: 0,
   },
@@ -548,26 +511,7 @@ const styles = {
   },
   // ... (omitting unchanged lines for brevity in thought process, but will include context in tool call)
 
-  // Mobile Styles Update
-  headerTopRow: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.75rem',
-    marginBottom: '1rem',
-  },
-  gasmeLogo: {
-    height: '40px',
-    width: 'auto',
-  },
-  dealershipName: {
-    fontSize: '1.4rem',
-    fontWeight: '900',
-    letterSpacing: '-0.025em',
-    color: '#c3002f',
-    margin: 0,
-    textTransform: 'uppercase',
-  },
+
   heroTitle: {
     fontSize: '2.5rem',
     fontWeight: 'bold',
@@ -578,7 +522,7 @@ const styles = {
     margin: '0 auto',
     padding: '2rem',
     display: 'grid',
-    gridTemplateColumns: '250px 1fr', // Sidebar - List (Detalle ahora es modal)
+    gridTemplateColumns: '1fr', // Ocupa todo el ancho ahora que no hay sidebar
     gap: '2rem',
     flex: 1,
     width: '100%',
@@ -790,7 +734,7 @@ const mobileStyles = {
     marginBottom: '1rem',
   },
   gasmeLogo: {
-    height: '40px',
+    height: '32px', /* Reducido de 40px a 32px para vista móvil */
     width: 'auto',
   },
   dealershipName: {

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
 /**
  * Normaliza los datos de la vacante (BD) al formato esperado por el frontend (Job).
@@ -7,15 +7,15 @@ const normalizeJob = (vacante) => {
     if (!vacante) return null;
     return {
         id: vacante.id,
-        title: vacante.titulo,
-        company: 'Nissan Gasme', // Hardcoded por ahora, o derivar de vacante.area_nombre + 'Nissan Gasme'
-        location: vacante.ubicacion || 'Ubicación no especificada',
+        title: vacante.titulo || 'Sin Título',
+        company: 'Nissan Gasme Córdoba',
+        location: vacante.ubicacion || 'Córdoba, Veracruz',
         description: vacante.descripcion,
         // Mapeo de campos faltantes o diferentes
-        type: vacante.modalidad || 'Presencial', // Asumiendo modalidad o default
-        time: 'Tiempo Completo', // Default
-        experience: vacante.requisitos ? (vacante.requisitos.length > 50 ? 'Ver requisitos' : vacante.requisitos) : 'No especificada', // Usar requisitos como proxy simple
-        salary: vacante.salario_esperado || 'Salario Competitivo', // No hay campo salario en vacantes, quizás en beneficios?
+        type: vacante.modalidad || 'Presencial',
+        time: 'Tiempo Completo',
+        experience: vacante.requisitos ? (vacante.requisitos.length > 50 ? 'Ver requisitos' : vacante.requisitos) : 'No especificada',
+        salary: vacante.salario_esperado || 'Sueldo Competitivo',
         postedTime: vacante.fecha_publicacion ? new Date(vacante.fecha_publicacion).toLocaleDateString() : 'Reciente',
         posted_at: vacante.fecha_publicacion,
         benefits: vacante.beneficios,
@@ -23,6 +23,20 @@ const normalizeJob = (vacante) => {
         status: vacante.estatus,
         area: vacante.area_nombre
     };
+};
+
+/**
+ * Obtiene la lista de sucursales/agencias.
+ */
+export const fetchSucursales = async () => {
+    try {
+        const response = await fetch(`${API_URL}/sucursales`);
+        if (!response.ok) throw new Error('Error fetching sucursales');
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
 };
 
 /**
@@ -66,22 +80,18 @@ export const fetchJobById = async (id) => {
  * Envia una nueva postulación
  */
 export const submitApplication = async (applicationData) => {
-    try {
-        const isFormData = applicationData instanceof FormData;
-        const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
-        const body = isFormData ? applicationData : JSON.stringify(applicationData);
+    const isFormData = applicationData instanceof FormData;
+    const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
+    const body = isFormData ? applicationData : JSON.stringify(applicationData);
 
-        const response = await fetch(`${API_URL}/applications`, {
-            method: 'POST',
-            headers: headers,
-            body: body,
-        });
+    const response = await fetch(`${API_URL}/applications`, {
+        method: 'POST',
+        headers: headers,
+        body: body,
+    });
 
-        if (!response.ok) throw new Error('Error submitting application');
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
+    if (!response.ok) throw new Error('Error submitting application');
+    return await response.json();
 };
 
 /**
@@ -109,11 +119,7 @@ export const extractCVData = async (file) => {
  * Consulta el estado de una postulación por código
  */
 export const checkApplicationStatus = async (trackingCode) => {
-    try {
-        const response = await fetch(`${API_URL}/applications/${trackingCode}`);
-        if (!response.ok) throw new Error('Application not found');
-        return await response.json();
-    } catch (error) {
-        throw error;
-    }
+    const response = await fetch(`${API_URL}/applications/${trackingCode}`);
+    if (!response.ok) throw new Error('Application not found');
+    return await response.json();
 };
