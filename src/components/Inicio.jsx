@@ -490,6 +490,7 @@ const styles = {
     fontSize: '2rem',
     fontWeight: '800',
     color: '#c3002f', // Mismo color del botón "Ver Mi Postulación"
+    fontFamily: '"Good Times", sans-serif',
     letterSpacing: '-0.025em',
     margin: 0,
   },
@@ -741,6 +742,7 @@ const mobileStyles = {
     fontSize: '1.4rem',
     fontWeight: '900',
     letterSpacing: '-0.025em',
+    fontFamily: '"Good Times", sans-serif',
     color: '#c3002f',
     margin: 0,
     textTransform: 'uppercase',

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Search, CheckCircle, Clock, FileText, Calendar, XCircle, AlertCircle } from 'lucide-react';
+import { X, Search, CheckCircle, Clock, FileText, Calendar, XCircle, AlertCircle, Loader2, Send, Bell, Glasses, ClipboardCheck, UserCheck } from 'lucide-react';
+import { checkApplicationStatus } from '../api/api';
 
 const TrackingPostulacion = ({
   showModal: externalShowModal,
@@ -14,75 +15,9 @@ const TrackingPostulacion = ({
   const [trackingCode, setTrackingCode] = useState('');
   const [applicationData, setApplicationData] = useState(null);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Datos de ejemplo - en producción vendría de una API
-  const mockApplications = {
-    'NIS2024001': {
-      code: 'NIS2024001',
-      position: 'Vendedor de Piso',
-      appliedDate: '15 Ene 2024',
-      currentStatus: 'en-revision',
-      applicantName: 'Juan Pérez',
-      email: 'juan@ejemplo.com',
-      phone: '229-123-4567',
-      timeline: [
-        { status: 'recibida', date: '15 Ene 2024 - 10:30 AM', completed: true },
-        { status: 'en-revision', date: '16 Ene 2024 - 09:15 AM', completed: true },
-        { status: 'entrevista', date: 'Pendiente', completed: false },
-        { status: 'decision', date: 'Pendiente', completed: false }
-      ]
-    },
-    'NIS2024002': {
-      code: 'NIS2024002',
-      position: 'Asesor de Servicio',
-      appliedDate: '10 Ene 2024',
-      currentStatus: 'entrevista',
-      applicantName: 'María González',
-      email: 'maria@ejemplo.com',
-      phone: '229-987-6543',
-      interviewDate: '22 Ene 2024',
-      interviewTime: '11:00 AM',
-      interviewLocation: 'Oficinas Nissan Banzai',
-      timeline: [
-        { status: 'recibida', date: '10 Ene 2024 - 02:45 PM', completed: true },
-        { status: 'en-revision', date: '11 Ene 2024 - 10:00 AM', completed: true },
-        { status: 'entrevista', date: '22 Ene 2024 - 11:00 AM', completed: true },
-        { status: 'decision', date: 'Pendiente', completed: false }
-      ]
-    },
-    'NIS2024003': {
-      code: 'NIS2024003',
-      position: 'Técnico Mecánico',
-      appliedDate: '05 Ene 2024',
-      currentStatus: 'aprobada',
-      applicantName: 'Carlos Ramírez',
-      email: 'carlos@ejemplo.com',
-      phone: '229-555-1234',
-      timeline: [
-        { status: 'recibida', date: '05 Ene 2024 - 03:20 PM', completed: true },
-        { status: 'en-revision', date: '06 Ene 2024 - 09:30 AM', completed: true },
-        { status: 'entrevista', date: '12 Ene 2024 - 10:00 AM', completed: true },
-        { status: 'decision', date: '18 Ene 2024 - Aprobada', completed: true }
-      ]
-    },
-    'NIS2024004': {
-      code: 'NIS2024004',
-      position: 'Recepcionista',
-      appliedDate: '08 Ene 2024',
-      currentStatus: 'rechazada',
-      applicantName: 'Ana Martínez',
-      email: 'ana@ejemplo.com',
-      phone: '229-444-5678',
-      timeline: [
-        { status: 'recibida', date: '08 Ene 2024 - 11:15 AM', completed: true },
-        { status: 'en-revision', date: '09 Ene 2024 - 02:00 PM', completed: true },
-        { status: 'entrevista', date: 'No programada', completed: false },
-        { status: 'decision', date: '14 Ene 2024 - No seleccionada', completed: true }
-      ]
-    }
-  };
-
-  const handleSearch = () => {
+  const handleSearch = async () => {
     setError('');
     const cleanCode = trackingCode.trim().toUpperCase();
 
@@ -91,13 +26,16 @@ const TrackingPostulacion = ({
       return;
     }
 
-    const application = mockApplications[cleanCode];
-
-    if (application) {
-      setApplicationData(application);
-    } else {
+    setIsLoading(true);
+    try {
+      const data = await checkApplicationStatus(cleanCode);
+      setApplicationData(data);
+    } catch (err) {
+      console.error(err);
       setError('Código no encontrado. Verifica e intenta nuevamente.');
       setApplicationData(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -108,45 +46,43 @@ const TrackingPostulacion = ({
   };
 
   const getStatusInfo = (status) => {
+    // Configuración general
+    // El color actual será Verde para todos (a excepción de Descartado que es rojo)
+    // El texto y configuración de iconos
     const statusConfig = {
-      'recibida': {
-        label: 'Solicitud Recibida',
-        icon: FileText,
-        color: '#3b82f6',
-        bgColor: '#dbeafe'
+      'NEW': {
+        label: 'POSTULADO',
+        icon: Send,
       },
-      'en-revision': {
-        label: 'En Revisión',
-        icon: Clock,
-        color: '#f59e0b',
-        bgColor: '#fef3c7'
+      'REC': {
+        label: 'RECIBIDO',
+        icon: Bell, // Campanita
       },
-      'entrevista': {
-        label: 'Entrevista Programada',
-        icon: Calendar,
-        color: '#8b5cf6',
-        bgColor: '#ede9fe'
+      'REV': {
+        label: 'EN REVISIÓN',
+        icon: Glasses, // Lentes
       },
-      'decision': {
-        label: 'Decisión Final',
-        icon: CheckCircle,
-        color: '#10b981',
-        bgColor: '#d1fae5'
+      'ENT': {
+        label: 'ENTREVISTA',
+        icon: ClipboardCheck, // Tipo checklist
       },
-      'aprobada': {
-        label: '¡Felicidades! Has sido seleccionado',
-        icon: CheckCircle,
-        color: '#10b981',
-        bgColor: '#d1fae5'
+      'PRE': {
+        label: 'PRE-SELECCIONADO',
+        icon: UserCheck, // Persona con palomita (gris/blanco)
       },
-      'rechazada': {
-        label: 'No seleccionado',
+      'CON': {
+        label: 'SELECCIONADO',
+        icon: UserCheck, // Persona con palomita (verde)
+      },
+      'REJ': {
+        label: 'DESCARTADO',
         icon: XCircle,
-        color: '#ef4444',
-        bgColor: '#fee2e2'
       }
     };
-    return statusConfig[status] || statusConfig['recibida'];
+    return statusConfig[status] || {
+      label: (status || 'ESTADO DESCONOCIDO').toUpperCase(),
+      icon: Clock
+    };
   };
 
   const resetModal = () => {
@@ -189,15 +125,16 @@ const TrackingPostulacion = ({
                 <div style={styles.searchBox}>
                   <input
                     type="text"
-                    placeholder="Ej: NIS2024001"
+                    placeholder="Ej: AB12CD34"
                     value={trackingCode}
                     onChange={(e) => setTrackingCode(e.target.value)}
                     onKeyPress={handleKeyPress}
                     style={styles.searchInput}
+                    disabled={isLoading}
                   />
-                  <button onClick={handleSearch} style={styles.searchButton}>
-                    <Search size={20} />
-                    Buscar
+                  <button onClick={handleSearch} style={{ ...styles.searchButton, opacity: isLoading ? 0.7 : 1 }} disabled={isLoading}>
+                    {isLoading ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
+                    {isLoading ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>
 
@@ -209,13 +146,7 @@ const TrackingPostulacion = ({
                 )}
 
                 <div style={styles.exampleCodes}>
-                  <p style={styles.exampleTitle}>Códigos de ejemplo para probar:</p>
-                  <div style={styles.codesList}>
-                    <code style={styles.code}>NIS2024001</code>
-                    <code style={styles.code}>NIS2024002</code>
-                    <code style={styles.code}>NIS2024003</code>
-                    <code style={styles.code}>NIS2024004</code>
-                  </div>
+                  <p style={styles.exampleTitle}>Ingresa aquí el código que te enviamos por correo.</p>
                 </div>
               </div>
             ) : (
@@ -235,20 +166,30 @@ const TrackingPostulacion = ({
                 {/* Estado actual destacado */}
                 <div style={{
                   ...styles.currentStatusCard,
-                  backgroundColor: getStatusInfo(applicationData.currentStatus).bgColor
+                  // Verde por defecto, pero Rojo (#ef4444) y fondo rojo si es Descartado
+                  backgroundColor: applicationData.currentStatus === 'REJ' ? '#fee2e2' : '#dcfce7',
+                  boxShadow: `0 10px 25px -5px ${applicationData.currentStatus === 'REJ' ? '#ef4444' : '#22c55e'}40`
                 }}>
                   <div style={styles.statusIconLarge}>
                     {React.createElement(getStatusInfo(applicationData.currentStatus).icon, {
-                      size: 40,
-                      color: getStatusInfo(applicationData.currentStatus).color
+                      size: 48,
+                      color: applicationData.currentStatus === 'REJ' ? '#ef4444' : '#22c55e'
                     })}
                   </div>
                   <h4 style={{
                     ...styles.currentStatusText,
-                    color: getStatusInfo(applicationData.currentStatus).color
+                    color: applicationData.currentStatus === 'REJ' ? '#ef4444' : '#22c55e'
                   }}>
                     {getStatusInfo(applicationData.currentStatus).label}
                   </h4>
+                  <p style={{
+                    margin: '0.5rem 0 0 0',
+                    fontSize: '0.95rem',
+                    color: '#4b5563',
+                    opacity: 0.8
+                  }}>
+                    Estado Actual
+                  </p>
                 </div>
 
                 {/* Información de entrevista si aplica */}
@@ -268,41 +209,68 @@ const TrackingPostulacion = ({
 
                 {/* Timeline de progreso */}
                 <div style={styles.timelineSection}>
-                  <h5 style={styles.timelineTitle}>Historial de tu Postulación</h5>
+                  <h5 style={styles.timelineTitle}>Progreso de la Postulación</h5>
                   <div style={styles.timeline}>
                     {applicationData.timeline.map((step, index) => {
                       const statusInfo = getStatusInfo(step.status);
                       const Icon = statusInfo.icon;
+
+                      // Lógica de colores del usuari0:
+                      // Solo se iluminará el estado EN EL QUE SE ENCUENTRE (verde, o rojo si está descartado)
+                      // Todo lo demás, ya sea completado en el pasado o no completado hacia el futuro, será Gris.
+                      // En el "caminito" (línea) también será gris.  
+
+                      const isCurrentState = step.status === applicationData.currentStatus;
+
+                      let iconColor = '#9ca3af'; // Gris por defecto (pasado o futuro no iluminado)
+                      let bgColor = '#f3f4f6'; // Gris clarito para el circulo
+                      let borderColor = '#d1d5db'; // Borde gris claro
+
+                      if (isCurrentState) {
+                        if (step.status === 'REJ') {
+                          iconColor = '#ffffff';
+                          bgColor = '#ef4444'; // Rojo intenso
+                          borderColor = '#ef4444';
+                        } else {
+                          iconColor = '#ffffff';
+                          bgColor = '#22c55e'; // Verde
+                          borderColor = '#22c55e';
+                        }
+                      } else {
+                        // Si queremos que el icono en el punto muerto sea gris mas oscuro
+                        iconColor = '#6b7280';
+                      }
 
                       return (
                         <div key={index} style={styles.timelineItem}>
                           <div style={styles.timelineLeft}>
                             <div style={{
                               ...styles.timelineIcon,
-                              backgroundColor: step.completed ? statusInfo.color : '#e5e7eb',
-                              borderColor: step.completed ? statusInfo.color : '#d1d5db'
+                              backgroundColor: bgColor,
+                              borderColor: borderColor,
+                              // Hacer brillar la bolita unicamente si es el estado actual
+                              boxShadow: isCurrentState ? `0 0 10px ${borderColor}80` : 'none'
                             }}>
-                              <Icon size={20} color="#ffffff" />
+                              <Icon size={20} color={iconColor} />
                             </div>
                             {index < applicationData.timeline.length - 1 && (
                               <div style={{
                                 ...styles.timelineLine,
-                                backgroundColor: step.completed && applicationData.timeline[index + 1].completed
-                                  ? statusInfo.color
-                                  : '#e5e7eb'
+                                backgroundColor: '#e5e7eb' // La linea SIEMPRE sera gris según el req.
                               }} />
                             )}
                           </div>
                           <div style={styles.timelineContent}>
                             <h6 style={{
                               ...styles.timelineLabel,
-                              color: step.completed ? '#111827' : '#9ca3af'
+                              color: isCurrentState ? (step.status === 'REJ' ? '#ef4444' : '#15803d') : '#6b7280',
+                              fontWeight: isCurrentState ? '800' : '600'
                             }}>
                               {statusInfo.label}
                             </h6>
                             <p style={{
                               ...styles.timelineDate,
-                              color: step.completed ? '#6b7280' : '#9ca3af'
+                              color: '#9ca3af'
                             }}>
                               {step.date}
                             </p>
@@ -314,18 +282,18 @@ const TrackingPostulacion = ({
                 </div>
 
                 {/* Mensaje adicional según el estado */}
-                {applicationData.currentStatus === 'aprobada' && (
+                {applicationData.currentStatus === 'CON' && (
                   <div style={styles.finalMessage}>
                     <p style={styles.finalMessageText}>
-                      🎉 Nos pondremos en contacto contigo pronto para los siguientes pasos del proceso de contratación.
+                      🎉 ¡Felicidades, te hemos aceptado! Nos pondremos en contacto contigo pronto para tu integración.
                     </p>
                   </div>
                 )}
 
-                {applicationData.currentStatus === 'rechazada' && (
+                {applicationData.currentStatus === 'REJ' && (
                   <div style={styles.finalMessageRejected}>
                     <p style={styles.finalMessageText}>
-                      Gracias por tu interés en formar parte de nuestro equipo. Te animamos a seguir aplicando a futuras vacantes que se ajusten a tu perfil.
+                      Agradecemos mucho tu tiempo. En esta ocasión hemos avanzado con otro perfil, pero mantendremos tu información para futuras vacantes.
                     </p>
                   </div>
                 )}
@@ -337,7 +305,7 @@ const TrackingPostulacion = ({
               </div>
             )}
           </div>
-        </div>
+        </div >
       )}
     </>
   );
@@ -362,7 +330,8 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(17, 24, 39, 0.7)',
+    backdropFilter: 'blur(8px)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -371,19 +340,19 @@ const styles = {
   },
   modal: {
     backgroundColor: '#ffffff',
-    borderRadius: '1rem',
+    borderRadius: '1.25rem',
     width: '100%',
     maxWidth: '700px',
     maxHeight: '90vh',
     overflowY: 'auto',
     position: 'relative',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0,0,0,0.05)',
   },
   closeButton: {
     position: 'absolute',
-    top: '1rem',
-    right: '1rem',
-    background: 'none',
+    top: '1.25rem',
+    right: '1.25rem',
+    background: '#f3f4f6',
     border: 'none',
     cursor: 'pointer',
     color: '#6b7280',
@@ -393,6 +362,7 @@ const styles = {
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
+    transition: 'all 0.2s',
   },
   searchSection: {
     padding: '3rem 2rem',
@@ -509,18 +479,28 @@ const styles = {
     marginBottom: '0.25rem',
   },
   currentStatusCard: {
-    padding: '1.5rem',
-    borderRadius: '0.75rem',
-    marginBottom: '1.5rem',
+    padding: '2rem 1.5rem',
+    borderRadius: '1rem',
+    marginBottom: '2rem',
     textAlign: 'center',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid rgba(255,255,255,0.5)',
   },
   statusIconLarge: {
-    marginBottom: '0.75rem',
+    marginBottom: '1rem',
+    padding: '1rem',
+    backgroundColor: '#ffffff',
+    borderRadius: '50%',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
   },
   currentStatusText: {
-    fontSize: '1.25rem',
-    fontWeight: 'bold',
+    fontSize: '1.5rem',
+    fontWeight: '800',
     margin: 0,
+    letterSpacing: '-0.025em',
   },
   interviewCard: {
     backgroundColor: '#ede9fe',
@@ -583,25 +563,28 @@ const styles = {
     zIndex: 1,
   },
   timelineLine: {
-    width: '3px',
+    width: '4px',
     flex: 1,
     minHeight: '40px',
-    marginTop: '4px',
-    marginBottom: '4px',
+    marginTop: '6px',
+    marginBottom: '6px',
+    borderRadius: '2px', // Bordes redondeados en la linea
   },
   timelineContent: {
-    paddingBottom: '1.5rem',
+    paddingBottom: '2rem',
     flex: 1,
+    paddingTop: '0.5rem', // Alinear visualmente con el icono
   },
   timelineLabel: {
-    fontSize: '1rem',
-    fontWeight: '600',
+    fontSize: '1.1rem',
+    fontWeight: '700',
     marginBottom: '0.25rem',
-    margin: '0 0 0.25rem 0',
+    margin: '0 0 0.35rem 0',
   },
   timelineDate: {
-    fontSize: '0.875rem',
+    fontSize: '0.9rem',
     margin: 0,
+    fontWeight: '500',
   },
   finalMessage: {
     backgroundColor: '#d1fae5',

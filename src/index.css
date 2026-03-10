@@ -1,3 +1,12 @@
+@font-face {
+  font-family: 'Good Times';
+  src: url('https://db.onlinewebfonts.com/t/2eb03ac0ec2d97ad0fbe22fb1e8ebff8.woff2') format('woff2'),
+       url('https://db.onlinewebfonts.com/t/2eb03ac0ec2d97ad0fbe22fb1e8ebff8.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -119,7 +119,7 @@ export const extractCVData = async (file) => {
  * Consulta el estado de una postulación por código
  */
 export const checkApplicationStatus = async (trackingCode) => {
-    const response = await fetch(`${API_URL}/applications/${trackingCode}`);
+    const response = await fetch(`${API_URL}/applications/status/${trackingCode}`);
     if (!response.ok) throw new Error('Application not found');
     return await response.json();
 };

@@ -122,4 +122,108 @@ router.post('/', upload.fields([{ name: 'cv', maxCount: 1 }]), async (req, res) 
     }
 });
 
+// GET /api/applications/status/:codigo - Consultar estado de postulación
+router.get('/status/:codigo', async (req, res) => {
+    const { codigo } = req.params;
+    const client = await db.getClient();
+
+    try {
+        // 1. Obtener la postulación principal con JOINs
+        const appQuery = await client.query(`
+            SELECT 
+                p.id, 
+                p.codigo_seguimiento, 
+                p.creado_en AS fecha_aplicacion,
+                p.notas,
+                e.codigo AS etapa_codigo,
+                e.nombre AS etapa_nombre,
+                e.orden AS etapa_orden,
+                v.titulo AS vacante_titulo,
+                c.nombre AS candidato_nombre,
+                c.email,
+                c.telefono
+            FROM postulaciones p
+            JOIN etapas_pipeline e ON p.etapa_id = e.id
+            JOIN vacantes v ON p.vacante_id = v.id
+            JOIN candidatos c ON p.candidato_id = c.id
+            WHERE p.codigo_seguimiento = $1
+        `, [codigo.toUpperCase()]);
+
+        if (appQuery.rows.length === 0) {
+            return res.status(404).json({ error: 'Código de postulación no encontrado' });
+        }
+
+        const appData = appQuery.rows[0];
+
+        // 2. Obtener todas las etapas para construir el timeline
+        // Excluimos REJ (Rechazado) amenos que sea la etapa actual, para que no aparezca en el flujo normal si está aprobado.
+        // Pero para simplificar, obtenemos todas las activas ordenadas.
+        const pipelineQuery = await client.query(`
+            SELECT codigo, nombre, orden
+            FROM etapas_pipeline
+            WHERE activo = true
+            ORDER BY orden ASC
+        `);
+
+        // Construir la línea de tiempo
+        // Mapearemos los estados de la base de datos a un formato similar al que espera el frontend.
+        const timeline = [];
+        let isRejected = appData.etapa_codigo === 'REJ';
+        let isHired = appData.etapa_codigo === 'CON';
+
+        pipelineQuery.rows.forEach(stage => {
+            // Regla: Si ha sido rechazado, las etapas posteriores a la actual no se completan, y tal vez agregamos el rechazo al final.
+            // Para simplificar: mostramos el progreso normal. Si es rechazado, se rompe el "completado" allí.
+
+            // Ignorar el state de rechazo si no está rechazado, para no mostrarlo como "Pendiente" al final.
+            if (stage.codigo === 'REJ' && !isRejected) return;
+            // Ignorar CON (contratado) si fue rechazado
+            if (stage.codigo === 'CON' && isRejected) return;
+
+            let isCompleted = false;
+            let statusDate = 'Pendiente'; // En caso real guardaríamos historial en una tabla "historial_postulaciones". Por ahora usamos Pendiente/Completado.
+
+            if (stage.orden < appData.etapa_orden) {
+                isCompleted = true;
+                statusDate = 'Completado';
+            } else if (stage.orden === appData.etapa_orden) {
+                isCompleted = true;
+                // Si es la etapa actual, podemos poner la fecha_aplicacion u hora actual
+                statusDate = new Date(appData.fecha_aplicacion).toLocaleDateString('es-ES', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            }
+
+            // Enviar el código tal cual (NEW, REV, ENT...) para que el frontend lo mapee a los colores
+            timeline.push({
+                status: stage.codigo,
+                date: statusDate,
+                completed: isCompleted,
+                originalName: stage.nombre
+            });
+        });
+
+        const responseData = {
+            code: appData.codigo_seguimiento,
+            position: appData.vacante_titulo,
+            appliedDate: new Date(appData.fecha_aplicacion).toLocaleDateString('es-ES', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            }),
+            currentStatus: appData.etapa_codigo,
+            applicantName: appData.candidato_nombre,
+            email: appData.email,
+            phone: appData.telefono,
+            timeline: timeline
+        };
+
+        res.json(responseData);
+
+    } catch (error) {
+        console.error('Error fetching application status:', error);
+        res.status(500).json({ error: 'Error interno al consultar el estado' });
+    } finally {
+        if (client) client.release();
+    }
+});
+
 module.exports = router;
