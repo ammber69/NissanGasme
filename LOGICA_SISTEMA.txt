@@ -1,0 +1,71 @@
+=============================================================================
+SISTEMA DE POSTULACIONES Y CONSULTA DE ESTADO - DOCUMENTACIÓN TÉCNICA
+=============================================================================
+
+Este documento detalla el funcionamiento de la lógica de postulación, consulta 
+de estado y manejo de datos implementado en el proyecto Nissan Gasme.
+
+1. LÓGICA DE POSTULACIÓN (POST /api/applications)
+-----------------------------------------------------------------------------
+El proceso de postulación es el corazón del sistema y sigue estos pasos:
+
+A. Recepción de Datos y Archivos:
+   - Se utiliza 'multer' para procesar el envío de formularios multi-part.
+   - Los archivos CV se almacenan físicamente en la carpeta 'uploads/' con un
+     nombre único para evitar colisiones.
+   - El sistema acepta tanto el archivo físico (PDF) como una versión en texto
+     (cv_text) si se proporciona.
+
+B. Persistencia de Candidatos:
+   - El sistema busca si el candidato ya existe mediante su correo electrónico.
+   - Si existe: Actualiza sus datos (teléfono, ubicación, experiencia, etc.) y 
+     mantiene el registro de su CV más reciente.
+   - Si no existe: Crea un nuevo registro en la tabla 'candidatos'.
+   - Se almacena el CV de tres formas para redundancia y flexibilidad:
+     1. Ruta del archivo (cv_url).
+     2. Contenido binario en la base de datos (cv_blob) para respaldos.
+     3. Texto plano (cv_text) para búsquedas rápidas.
+
+C. Validación de Duplicados:
+   - Antes de registrar la postulación, se verifica que el candidato no se haya
+     postulado previamente a la misma vacante a través de una restricción de 
+     unicidad (candidato_id, vacante_id).
+
+D. Registro de la Postulación:
+   - Se asigna automáticamente a la primera etapa del pipeline (etapa_id).
+   - Se genera un código de seguimiento único de 8 caracteres alfanuméricos
+     (ej: A1B2C3D4) para que el candidato consulte su progreso.
+
+E. Notificación por Correo:
+   - Una vez confirmada la postulación en la base de datos, se envía un correo 
+     electrónico de confirmación al candidato incluyendo su código de seguimiento.
+
+
+2. CONSULTA DE ESTADO (GET /api/applications/status/:codigo)
+-----------------------------------------------------------------------------
+Permite a los candidatos visualizar en qué etapa se encuentra su proceso:
+
+A. Recuperación de Información:
+   - Se realiza una consulta con múltiples JOINs para obtener el nombre del 
+     puesto, los datos del candidato y la etapa actual del pipeline.
+
+B. Construcción de la Línea de Tiempo (Timeline):
+   - El sistema recupera todas las etapas configuradas en 'etapas_pipeline'.
+   - Calcula dinámicamente qué etapas han sido completadas basándose en el
+     orden jerárquico de las mismas.
+   - Maneja estados especiales:
+     * Si el candidato es rechzado (REJ), el flujo se detiene y muestra el rechazo.
+     * Si es contratado (CON), muestra el éxito del proceso.
+
+3. ARQUITECTURA DE DATOS
+-----------------------------------------------------------------------------
+- Base de Datos: PostgreSQL.
+- Transaccionalidad: Se utilizan bloques BEGIN/COMMIT para asegurar que el 
+  candidato y la postulación se creen correctamente o no se haga nada en caso 
+  de error.
+- Seguridad: Se validan los tipos de archivos y se manejan los errores de 
+  lectura/escritura de archivos de forma segura.
+
+=============================================================================
+DISEÑADO PARA UNA IMPLEMENTACIÓN PROFESIONAL Y ESCALABLE
+=============================================================================
