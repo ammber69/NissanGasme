@@ -85,10 +85,10 @@ const JobPortal = () => {
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
-    setShowCopiedMessage(true);
+    setContactFeedback('Enlace copiado al portapapeles');
     setTimeout(() => {
-      setShowCopiedMessage(false);
-    }, 2000);
+      setContactFeedback('');
+    }, 3000);
   };
 
   const toggleSaveJob = (jobId) => {
@@ -136,7 +136,15 @@ const JobPortal = () => {
 
   return (
     <div style={getStyle('container')} key={isMobile ? 'mobile' : 'desktop'}>
-      {/* Header */}
+      <div className="mesh-bg"></div>
+
+      {/* Global Toast */}
+      {contactFeedback && (
+        <div className="toast">
+          <span>{contactFeedback}</span>
+        </div>
+      )}
+
       {/* Header */}
       {!isMobile ? (
         <header style={styles.header}>
@@ -181,8 +189,15 @@ const JobPortal = () => {
 
       {/* Hero Banner - Solo Desktop */}
       {!isMobile && (
-        <div style={getStyle('heroBanner')}>
-          <h2 style={getStyle('heroTitle')}></h2>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', padding: '1rem 2rem 2rem 2rem', backgroundColor: 'transparent', maxWidth: '1280px', margin: '0 auto', alignItems: 'center' }} className="animate-fade-in">
+          <div style={{ paddingRight: '2rem' }}>
+            <h2 style={{ fontSize: '3.5rem', fontWeight: '900', lineHeight: 1.1, fontFamily: '"Good Times", sans-serif', color: '#1f2937', letterSpacing: '-0.02em', marginBottom: '1rem' }}>Encuentra tu<br /><span style={{ color: '#c3002f' }}>próximo reto</span></h2>
+            <p style={{ color: '#4b5563', fontSize: '1.2rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '90%' }}>Únete a Grupo Automotriz Nissan GASME y desarrolla tu carrera profesional en uno de los entornos más dinámicos de la industria.</p>
+            <button className="btn-hover" onClick={() => window.scrollTo({ top: 500, behavior: 'smooth' })} style={{ padding: '1rem 2rem', backgroundColor: '#c3002f', color: '#fff', border: 'none', borderRadius: '0.75rem', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 14px rgba(195, 0, 47, 0.4)' }}>Explorar Vacantes</button>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <img src="/oz2.png" alt="Nosotros" style={{ width: '100%', height: '400px', borderRadius: '1.5rem', objectFit: 'cover', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }} />
+          </div>
         </div>
       )}
 
@@ -204,13 +219,14 @@ const JobPortal = () => {
                 />
               </div>
               <button
+                className="btn-hover"
                 style={{ ...styles.searchButton, backgroundColor: '#f3f4f6', color: '#c3002f', marginRight: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 onClick={() => setShowFilters(true)}
               >
                 <Filter size={18} />
                 Filtros
               </button>
-              <button style={styles.searchButton}>Buscar</button>
+              <button className="btn-hover" style={styles.searchButton}>Buscar</button>
             </div>
           )}
 
@@ -224,8 +240,10 @@ const JobPortal = () => {
           </div>
 
           {loading ? (
-            <div style={{ padding: '2rem', textAlign: 'center', color: '#6b7280' }}>
-              Cargando vacantes...
+            <div style={getStyle('jobsGrid')} className="animate-fade-in">
+              {[1, 2, 3, 4].map(n => (
+                <div key={n} style={{ ...styles.jobCard, height: '180px' }} className="skeleton"></div>
+              ))}
             </div>
           ) : error ? (
             <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444' }}>
@@ -233,30 +251,44 @@ const JobPortal = () => {
             </div>
           ) : (
             <>
-              {/* Jobs Grid */}
-              <div style={getStyle('jobsGrid')}>
-                {currentJobs.map(job => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    isMobile={isMobile}
-                    isSelected={selectedJob?.id === job.id}
-                    onClick={() => handleJobClick(job)}
-                    onSave={toggleSaveJob}
-                    isSaved={savedJobs.includes(job.id)}
-                    onShare={handleShare}
-                  />
-                ))}
-              </div>
-
-              {/* Paginación */}
-              {totalPages > 1 && (
-                <div style={getStyle('pagination')}>
-                  {/* ... lógica de paginación simplificada ... */}
-                  <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={styles.paginationButton}>Ant</button>
-                  <span style={{ margin: '0 1rem' }}>{currentPage} de {totalPages}</span>
-                  <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>Sig</button>
+              {/* Conditional Empty State */}
+              {currentJobs.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '4rem 2rem', backgroundColor: '#ffffff', borderRadius: '1rem', border: '1px dashed #d1d5db', margin: '2rem 0' }} className="animate-fade-in">
+                  <div style={{ backgroundColor: '#f3f4f6', width: '100px', height: '100px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem' }}>
+                    <Search size={40} color="#9ca3af" />
+                  </div>
+                  <h3 style={{ fontSize: '1.25rem', color: '#111827', fontWeight: 'bold' }}>No encontramos vacantes</h3>
+                  <p style={{ color: '#6b7280', marginTop: '0.5rem' }}>Intenta ajustar tus filtros de búsqueda para ver más resultados.</p>
+                  <button onClick={() => { setSearchTerm(''); setFilters({ sortBy: 'recent', location: 'Todas las agencias' }); }} className="btn-hover" style={{ marginTop: '1.5rem', padding: '0.75rem 1.5rem', backgroundColor: '#1f2937', color: '#fff', border: 'none', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer' }}>Limpiar filtros</button>
                 </div>
+              ) : (
+                <>
+                  {/* Jobs Grid */}
+                  <div style={getStyle('jobsGrid')}>
+                    {currentJobs.map(job => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        isMobile={isMobile}
+                        isSelected={selectedJob?.id === job.id}
+                        onClick={() => handleJobClick(job)}
+                        onSave={toggleSaveJob}
+                        isSaved={savedJobs.includes(job.id)}
+                        onShare={handleShare}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Paginación */}
+                  {totalPages > 1 && (
+                    <div style={getStyle('pagination')}>
+                      {/* ... lógica de paginación simplificada ... */}
+                      <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} style={styles.paginationButton}>Ant</button>
+                      <span style={{ margin: '0 1rem' }}>{currentPage} de {totalPages}</span>
+                      <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} style={styles.paginationButton}>Sig</button>
+                    </div>
+                  )}
+                </>
               )}
             </>
           )}
@@ -275,7 +307,7 @@ const JobPortal = () => {
               isSaved={savedJobs.includes(selectedJob.id)}
             />
           ) : (
-            <div style={styles.modalOverlay} onClick={closeJobDetails}>
+            <div style={styles.modalOverlay} onClick={closeJobDetails} className="animate-fade-in">
               <div style={styles.modalContent} onClick={(e) => e.stopPropagation()}>
                 <JobDetail
                   job={selectedJob}
@@ -293,7 +325,7 @@ const JobPortal = () => {
 
         {/* Modal Filtros */}
         {showFilters && (
-          <div style={isMobile ? mobileStyles.filtersOverlay : styles.modalOverlay} onClick={() => setShowFilters(false)}>
+          <div style={isMobile ? mobileStyles.filtersOverlay : styles.modalOverlay} onClick={() => setShowFilters(false)} className="animate-fade-in">
             <div style={isMobile ? mobileStyles.filtersContent : { ...styles.modalContent, display: 'block', backgroundColor: '#fff', padding: '2rem', height: 'auto', maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -384,26 +416,6 @@ const JobPortal = () => {
         <div style={mobileStyles.menuOverlay} onClick={() => setShowMobileMenu(false)}>
           <div style={mobileStyles.menuContent} onClick={e => e.stopPropagation()}>
             <h3>Contacto</h3>
-
-            {contactFeedback && (
-              <div style={{
-                position: 'absolute',
-                top: '1rem',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: '#10b981',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '2rem',
-                fontSize: '0.85rem',
-                fontWeight: 'bold',
-                zIndex: 10,
-                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-              }}>
-                {contactFeedback}
-              </div>
-            )}
-
             <div style={{ ...mobileStyles.contactItem, cursor: 'pointer', active: { opacity: 0.7 } }} onClick={() => handleCopy('+52 271 716 6612', 'Teléfono')}>
               <Phone size={20} />
               <span>+52 271 716 6612</span>
@@ -436,12 +448,71 @@ const JobPortal = () => {
         hideButton={true}
       />
 
-      {/* Footer */}
+      {/* Footer Premium Extremo */}
       {!isMobile && (
-        <footer style={getStyle('footer')}>
-          <div style={getStyle('footerContent')}>
-            <p style={{ textAlign: 'center', color: '#fff' }}>© 2024 GASME Automotriz. Todos los derechos reservados.</p>
+        <footer style={{ backgroundColor: '#0B0F19', position: 'relative', overflow: 'hidden', color: '#f8fafc', paddingTop: '6rem', paddingBottom: '2rem', marginTop: 'auto', borderTop: '2px solid #c3002f' }}>
+
+          {/* Subtle glow / border effect */}
+          <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', height: '2px', background: 'linear-gradient(90deg, transparent, #c3002f, transparent)' }}></div>
+          <div style={{ position: 'absolute', top: '-15rem', left: '50%', transform: 'translateX(-50%)', width: '60rem', height: '20rem', background: 'radial-gradient(ellipse, rgba(195,0,47,0.15) 0%, transparent 60%)', zIndex: 0, pointerEvents: 'none' }}></div>
+
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(300px, 1.5fr) 1fr 1fr 1.5fr', gap: '4rem', padding: '0 3rem' }}>
+            {/* Branding Masivo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ backgroundColor: '#ffffff', padding: '0.75rem', borderRadius: '0.75rem', display: 'flex', boxShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
+                  <img src="/logo-sucursal.png" alt="Logo" style={{ height: '32px' }} />
+                </div>
+                <h3 style={{ fontSize: '2rem', fontFamily: '"Good Times", sans-serif', color: '#ffffff', letterSpacing: '0.05em', margin: 0, textShadow: '0 4px 10px rgba(0,0,0,0.5)' }}>GASME</h3>
+              </div>
+              <p style={{ color: '#94a3b8', fontSize: '1.05rem', lineHeight: '1.8', maxWidth: '90%' }}>Pioneros en movilidad e innovación de la región. Construye tu futuro corporativo con nosotros en el entorno automotriz más dinámico y competitivo.</p>
+            </div>
+
+            {/* Enlaces Corporativos */}
+            <div>
+              <h4 style={{ fontSize: '1.25rem', marginBottom: '2rem', color: '#ffffff', fontWeight: '800', letterSpacing: '1px' }}>Corporativo</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {['Nuestra Historia', 'Impacto Ambiental', 'Inversionistas', 'Bolsa de Trabajo'].map((text, i) => (
+                  <li key={i}><a href="#" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1.05rem', transition: 'all 0.3s ease', display: 'inline-block' }} onMouseEnter={e => { e.currentTarget.style.color = '#c3002f'; e.currentTarget.style.transform = 'translateX(6px)'; }} onMouseLeave={e => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.transform = 'translateX(0)'; }}>{text}</a></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal y Ayuda */}
+            <div>
+              <h4 style={{ fontSize: '1.25rem', marginBottom: '2rem', color: '#ffffff', fontWeight: '800', letterSpacing: '1px' }}>Soporte</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '1rem', color: '#cbd5e1', fontSize: '1.05rem' }}>
+                <li style={{ cursor: 'pointer', transition: 'color 0.3s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}>Portal de Empleados</li>
+                <li style={{ cursor: 'pointer', transition: 'color 0.3s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}>Aviso de Privacidad</li>
+                <li style={{ cursor: 'pointer', transition: 'color 0.3s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'} onMouseLeave={e => e.currentTarget.style.color = '#cbd5e1'}>Términos y Condiciones</li>
+              </ul>
+            </div>
+
+            {/* Suscripción VIP y Contacto */}
+            <div style={{ backgroundColor: 'rgba(255,255,255,0.03)', padding: '2rem', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <h4 style={{ fontSize: '1.25rem', marginBottom: '1rem', color: '#ffffff', fontWeight: '800' }}>Talent Network</h4>
+              <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '1.5rem', lineHeight: 1.6 }}>Forma parte de la red de talento exclusivo. Recibe vacantes premium directo a tu bandeja.</p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input type="email" placeholder="Ingresa tu correo oficial" style={{ flex: 1, padding: '0.8rem 1rem', borderRadius: '0.5rem', border: 'none', outline: 'none', backgroundColor: '#1e293b', color: '#fff', fontSize: '0.95rem' }} />
+                <button className="btn-hover" style={{ backgroundColor: '#c3002f', color: '#fff', padding: '0.8rem 1.25rem', borderRadius: '0.5rem', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Unirse</button>
+              </div>
+              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => handleCopy('+52 271 716 6612', 'Teléfono')}><Phone size={20} color="#c3002f" /> <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>Llamar</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => handleCopy('ventas@gasme.mx', 'Correo')}><Mail size={20} color="#c3002f" /> <span style={{ fontSize: '0.95rem', color: '#cbd5e1' }}>Correo</span></div>
+              </div>
+            </div>
           </div>
+
+          <div style={{ position: 'relative', zIndex: 1, maxWidth: '1400px', margin: '5rem auto 0', padding: '2rem 3rem 0', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0, fontWeight: '500' }}>© {new Date().getFullYear()} Grupo Automotriz Nissan GASME. Operado con innovación estricta.</p>
+            <div style={{ display: 'flex', gap: '1.5rem' }}>
+              <a href="https://www.facebook.com/NissanGasmeOficial" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', transition: 'color 0.3s', backgroundColor: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '50%' }} className="btn-hover" onMouseEnter={e => e.currentTarget.style.color = '#1877F2'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}><Facebook size={22} /></a>
+              <a href="https://www.instagram.com/nissan_gasme" target="_blank" rel="noopener noreferrer" style={{ color: '#64748b', transition: 'color 0.3s', backgroundColor: 'rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '50%' }} className="btn-hover" onMouseEnter={e => e.currentTarget.style.color = '#E4405F'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}><Instagram size={22} /></a>
+            </div>
+          </div>
+
+          {/* Huge background text */}
+          <div style={{ position: 'absolute', bottom: '-4rem', left: '0', width: '100%', textAlign: 'center', fontSize: '18vw', fontFamily: '"Good Times", sans-serif', color: 'rgba(255,255,255,0.03)', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 0, letterSpacing: '0.05em' }}>GASME</div>
         </footer>
       )}
     </div>

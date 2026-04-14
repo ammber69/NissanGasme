@@ -86,106 +86,116 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
     const styles = {
         jobCard: {
             backgroundColor: '#ffffff',
-            borderRadius: '0.75rem',
+            borderRadius: '1rem',
             padding: '1.5rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
             borderWidth: '1px',
             borderStyle: 'solid',
-            borderColor: 'transparent',
+            borderColor: '#f3f4f6',
             cursor: 'pointer',
-            marginBottom: '1rem',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         },
         jobCardActive: {
             borderColor: '#c3002f',
             backgroundColor: '#fff1f2',
-            transform: 'translateY(-2px)',
-            boxShadow: '0 10px 15px -3px rgba(195, 0, 47, 0.1)',
+            transform: 'translateY(-4px)',
+            boxShadow: '0 20px 25px -5px rgba(195, 0, 47, 0.1), 0 10px 10px -5px rgba(195, 0, 47, 0.04)',
         },
         jobCardHeader: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'flex-start',
-            marginBottom: '1rem',
+            marginBottom: '1.25rem',
         },
         jobIconWrapper: {
-            width: '48px',
-            height: '48px',
-            backgroundColor: '#fee2e2',
-            borderRadius: '12px',
+            width: '52px',
+            height: '52px',
+            backgroundColor: '#fff1f2',
+            borderRadius: '14px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexShrink: 0,
-            marginRight: '1rem',
+            marginRight: '1.25rem',
+            border: '1px solid #ffe4e6',
         },
         jobInfo: {
             flex: 1,
         },
         jobTitle: {
-            fontSize: '1.125rem',
-            fontWeight: '700',
-            color: '#1f2937',
-            marginBottom: '0.25rem',
-            lineHeight: '1.4',
+            fontSize: '1.15rem',
+            fontWeight: '800',
+            color: '#111827',
+            marginBottom: '0.35rem',
+            lineHeight: '1.3',
+            letterSpacing: '-0.01em',
         },
         jobCompany: {
             fontSize: '0.95rem',
             color: '#4b5563',
-            fontWeight: '500',
-            marginBottom: '0.25rem',
+            fontWeight: '600',
+            marginBottom: '0.35rem',
         },
         jobLocation: {
-            fontSize: '0.875rem',
+            fontSize: '0.85rem',
             color: '#6b7280',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.25rem',
+            gap: '0.35rem',
+            fontWeight: '500',
         },
         iconButton: {
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
-            border: 'none',
-            backgroundColor: 'transparent',
-            color: '#9ca3af',
+            padding: '0.6rem',
+            borderRadius: '0.75rem',
+            border: '1px solid #f3f4f6',
+            backgroundColor: '#ffffff',
+            color: '#6b7280',
             cursor: 'pointer',
-            transition: 'all 0.2s',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
         },
         jobTags: {
             display: 'flex',
             flexWrap: 'wrap',
             gap: '0.5rem',
-            marginBottom: '1rem',
+            marginBottom: '1.5rem',
         },
         tag: {
-            padding: '0.25rem 0.75rem',
-            backgroundColor: '#f3f4f6',
-            color: '#4b5563',
+            padding: '0.35rem 0.85rem',
+            backgroundColor: '#f8fafc',
+            color: '#334155',
             borderRadius: '9999px',
-            fontSize: '0.75rem',
-            fontWeight: '500',
+            fontSize: '0.8rem',
+            fontWeight: '600',
+            border: '1px solid #e2e8f0',
+            letterSpacing: '-0.01em',
         },
         jobFooter: {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            paddingTop: '1rem',
+            paddingTop: '1.25rem',
             borderTop: '1px solid #f3f4f6',
+            marginTop: 'auto',
         },
         salary: {
             display: 'flex',
             alignItems: 'center',
             gap: '0.25rem',
-            fontWeight: '700',
-            color: '#1f2937',
-            fontSize: '0.95rem',
+            fontWeight: '800',
+            color: '#111827',
+            fontSize: '1.05rem',
+            letterSpacing: '-0.02em',
         },
         postedTime: {
             fontSize: '0.8rem',
-            color: '#9ca3af',
+            color: '#6b7280',
+            fontWeight: '500',
         },
     };
 
@@ -244,6 +254,7 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
     // Desktop Render
     return (
         <div
+            className="animate-fade-in job-card-desktop"
             style={{
                 ...styles.jobCard,
                 ...(isSelected ? styles.jobCardActive : {})
@@ -260,10 +271,11 @@ const JobCard = ({ job, isMobile, isSelected, onClick, onSave, isSaved, onShare 
                     <p style={styles.jobLocation}>{job.location || 'Córdoba, Veracruz'}</p>
                 </div>
                 <button
+                    className="btn-hover"
                     style={styles.iconButton}
                     onClick={(e) => { e.stopPropagation(); onShare(); }}
                 >
-                    <Share2 size={20} />
+                    <Share2 size={18} color="#6b7280" />
                 </button>
             </div>
 

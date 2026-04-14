@@ -116,23 +116,24 @@ const Registro = ({ job, onClose }) => {
 
         {submitted ? (
           <div style={styles.successMessage}>
-            <CheckCircle size={64} color="#10b981" style={{ marginBottom: '1rem' }} />
+            <CheckCircle size={80} color="#10b981" style={{ marginBottom: '1.5rem' }} />
             <h3 style={styles.successTitle}>¡Solicitud Enviada!</h3>
-            <p style={{ textAlign: 'center', color: '#4b5563' }}>
-              Gracias por aplicar a la vacante de <br /><strong>{job.title}</strong>.
+            <p style={{ textAlign: 'center', color: '#4b5563', fontSize: '1.1rem' }}>
+              Gracias por aplicar a la vacante de <br /><strong style={{ color: '#111827' }}>{job.title}</strong>.
             </p>
-            <p style={{ marginTop: '0.5rem', color: '#6b7280', fontSize: '0.9rem' }}>
+            <p style={{ marginTop: '1rem', color: '#6b7280', fontSize: '1rem' }}>
               El equipo de RRHH revisará tu perfil y te contactará pronto.
             </p>
           </div>
         ) : (
           <>
-            <div style={styles.header}>
-              <h2 style={styles.title}>Aplicar para {job.title}</h2>
-              <p style={styles.subtitle}>{job.company} - {job.location}</p>
+            <div style={styles.headerBanner}>
+              <div style={{ position: 'absolute', top: '-30px', right: '-30px', background: 'radial-gradient(circle, rgba(255,255,255,0.15), transparent 60%)', width: '250px', height: '250px', borderRadius: '50%' }}></div>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: '900', margin: '0 0 0.5rem 0', position: 'relative', zIndex: 2 }}>Aplica Ahora</h2>
+              <p style={{ fontSize: '1.1rem', margin: 0, color: '#e5e7eb', position: 'relative', zIndex: 2 }}>{job.title} • {job.company}</p>
             </div>
 
-            <form onSubmit={handleSubmit} style={styles.form}>
+            <form onSubmit={handleSubmit} style={styles.formContainer}>
               {/* Información de Contacto Básica (Siempre visible) */}
               <div style={styles.sectionTitle}>Información de Contacto</div>
 
@@ -333,7 +334,7 @@ const Registro = ({ job, onClose }) => {
                 </div>
               )}
 
-              <button type="submit" style={styles.submitButton} disabled={isAnalyzing}>
+              <button type="submit" className="btn-hover" style={styles.submitButton} disabled={isAnalyzing}>
                 {isAnalyzing ? 'Procesando...' : (manualEntry ? 'Enviar Solicitud Manual' : 'Enviar Postulación con CV')}
               </button>
             </form>
@@ -360,44 +361,47 @@ const styles = {
     padding: '1rem',
   },
   modal: {
-    backgroundColor: '#ffffff',
-    borderRadius: '1rem',
+    backgroundColor: '#f9fafb',
+    borderRadius: '1.5rem',
     width: '100%',
-    maxWidth: '600px', // Un poco más ancho para el formulario manual
-    padding: '2rem',
+    maxWidth: '740px', // Wider
+    padding: '0', // Using 0 because I've added a banner
     position: 'relative',
     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
     maxHeight: '90vh',
     overflowY: 'auto',
+    textAlign: 'left' // Explicit constraint
   },
   closeButton: {
     position: 'absolute',
-    top: '1rem',
-    right: '1rem',
-    background: 'none',
+    top: '1.5rem',
+    right: '1.5rem',
+    background: 'rgba(255,255,255,0.2)',
     border: 'none',
     cursor: 'pointer',
-    color: '#9ca3af',
+    color: '#ffffff',
     padding: '0.5rem',
     borderRadius: '50%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     transition: 'background-color 0.2s',
+    zIndex: 10,
+    backdropFilter: 'blur(5px)',
   },
-  header: {
-    marginBottom: '1.5rem',
-    textAlign: 'center',
+  headerBanner: {
+    background: 'linear-gradient(135deg, #111827 0%, #1e293b 40%, #c3002f 100%)',
+    padding: '3rem',
+    color: '#ffffff',
+    position: 'relative',
+    overflow: 'hidden'
   },
-  title: {
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: '0.25rem',
-  },
-  subtitle: {
-    color: '#6b7280',
-    fontSize: '0.95rem',
+  formContainer: {
+    padding: '3rem',
+    backgroundColor: '#ffffff',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '1.25rem',
   },
   form: {
     display: 'flex',
@@ -405,14 +409,12 @@ const styles = {
     gap: '1.25rem',
   },
   sectionTitle: {
-    fontSize: '0.9rem',
-    fontWeight: '700',
-    color: '#374151',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    borderBottom: '1px solid #e5e7eb',
+    fontSize: '1.1rem',
+    fontWeight: '800',
+    color: '#111827',
+    borderBottom: '2px solid #f3f4f6',
     paddingBottom: '0.5rem',
-    marginTop: '0.5rem',
+    marginTop: '1.5rem',
   },
   formGroup: {
     display: 'flex',
@@ -430,22 +432,23 @@ const styles = {
     color: '#374151',
   },
   input: {
-    padding: '0.75rem',
-    borderRadius: '0.5rem',
+    padding: '0.875rem',
+    borderRadius: '0.75rem',
     border: '1px solid #d1d5db',
     fontSize: '0.95rem',
     outline: 'none',
-    transition: 'border-color 0.2s',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
     width: '100%',
   },
   textarea: {
-    padding: '0.75rem',
-    borderRadius: '0.5rem',
+    padding: '0.875rem',
+    borderRadius: '0.75rem',
     border: '1px solid #d1d5db',
     fontSize: '0.95rem',
     fontFamily: 'inherit',
     outline: 'none',
     resize: 'vertical',
+    transition: 'border-color 0.2s, box-shadow 0.2s',
     width: '100%',
   },
   modeSelector: {
@@ -453,8 +456,9 @@ const styles = {
     gap: '1rem',
     marginBottom: '0.5rem',
     backgroundColor: '#f3f4f6',
-    padding: '0.25rem',
-    borderRadius: '0.5rem',
+    padding: '0.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #e5e7eb',
   },
   modeButton: {
     flex: 1,
@@ -495,16 +499,16 @@ const styles = {
     animation: 'fadeIn 0.3s ease-in-out',
   },
   uploadBox: {
-    border: '2px dashed #d1d5db',
-    borderRadius: '0.5rem',
-    padding: '2rem 1rem',
+    border: '2px dashed #cbd5e1',
+    borderRadius: '1rem',
+    padding: '3rem 1.5rem',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '0.5rem',
+    gap: '0.75rem',
     cursor: 'pointer',
     position: 'relative',
-    backgroundColor: '#f9fafb',
+    backgroundColor: '#f8fafc',
     transition: 'all 0.2s',
   },
   uploadBoxSuccess: {
@@ -545,27 +549,28 @@ const styles = {
     backgroundColor: '#c3002f',
     color: '#ffffff',
     padding: '1rem',
-    borderRadius: '0.5rem',
+    borderRadius: '0.75rem',
     border: 'none',
     fontSize: '1rem',
     fontWeight: 'bold',
     cursor: 'pointer',
     marginTop: '0.5rem',
-    transition: 'background-color 0.2s',
-    boxShadow: '0 4px 6px -1px rgba(195, 0, 47, 0.3)',
+    boxShadow: '0 4px 14px rgba(195, 0, 47, 0.25)',
   },
   successMessage: {
     textAlign: 'center',
-    padding: '3rem 1rem',
+    padding: '6rem 2rem',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    backgroundColor: '#ffffff', // Ensures consistency inside the modal
+    height: '100%'
   },
   successTitle: {
-    fontSize: '1.75rem',
-    fontWeight: 'bold',
+    fontSize: '2rem',
+    fontWeight: '900',
     color: '#111827',
-    marginBottom: '0.5rem',
+    marginBottom: '1rem',
   },
 };
 

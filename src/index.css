@@ -1,7 +1,7 @@
 @font-face {
   font-family: 'Good Times';
   src: url('https://db.onlinewebfonts.com/t/2eb03ac0ec2d97ad0fbe22fb1e8ebff8.woff2') format('woff2'),
-       url('https://db.onlinewebfonts.com/t/2eb03ac0ec2d97ad0fbe22fb1e8ebff8.woff') format('woff');
+    url('https://db.onlinewebfonts.com/t/2eb03ac0ec2d97ad0fbe22fb1e8ebff8.woff') format('woff');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -41,4 +41,143 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.job-card-desktop {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.job-card-desktop:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-color: #c3002f !important;
+}
+
+.btn-hover {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-hover:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.btn-hover:active {
+  transform: scale(0.97);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #c3002f !important;
+  box-shadow: 0 0 0 3px rgba(195, 0, 47, 0.15);
+}
+
+/* Skeleton Loading (Shimmer) */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0) 100%);
+  animation: shimmer 1.5s infinite;
+}
+
+/* Toast Messages */
+@keyframes slideUpFade {
+  0% {
+    transform: translate(-50%, 150%);
+    opacity: 0;
+  }
+
+  10% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  90% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, 150%);
+    opacity: 0;
+  }
+}
+
+.toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #111827;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 9999;
+  font-weight: 500;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  animation: slideUpFade 3s ease-in-out forwards;
+}
+
+/* Mesh Background */
+.mesh-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 600px;
+  background: radial-gradient(circle at 15% 50%, rgba(195, 0, 47, 0.04), transparent 30%),
+    radial-gradient(circle at 85% 30%, rgba(195, 0, 47, 0.03), transparent 30%);
+  z-index: -1;
+  pointer-events: none;
 }

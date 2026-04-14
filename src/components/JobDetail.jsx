@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Briefcase, MapPin, DollarSign, Clock, Share2, X, ChevronLeft } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, Share2, X, ChevronLeft, Bookmark, ClipboardList, CheckCircle } from 'lucide-react';
 import Registro from './Registro';
 
 const JobDetail = ({ job, isMobile, onClose, onShare, showCopiedMessage }) => {
     const [showRegistration, setShowRegistration] = useState(false);
+    const [isSaved, setIsSaved] = useState(false);
 
-    // Helper to handle safe property access for API vs Mock data
     const safeJob = {
         ...job,
         time: job.contract_type || job.time,
@@ -14,542 +14,259 @@ const JobDetail = ({ job, isMobile, onClose, onShare, showCopiedMessage }) => {
         postedTime: job.postedTime || new Date(job.posted_at).toLocaleDateString()
     };
 
-    const styles = {
-        // Desktop Styles
-        detailsPanel: {
+    const handleSave = () => setIsSaved(!isSaved);
+
+    const s = {
+        wrapper: {
             position: 'relative',
-            backgroundColor: '#ffffff',
-            borderRadius: '0.75rem',
-            // padding: '2rem', // Removed padding from container
+            backgroundColor: '#f3f4f6', // Light gray background for contrast
             height: '100%',
-            overflow: 'hidden', // Container hidden, inner scroll
+            width: '100%',
             display: 'flex',
             flexDirection: 'column',
+            overflow: 'hidden',
+            textAlign: 'left', // FORCE left alignment for the whole tree
         },
-        detailsHeader: {
-            padding: '2rem 2rem 1rem 2rem',
-            borderBottom: '1px solid #f3f4f6',
-            flexShrink: 0,
-        },
-        scrollableContent: {
-            flex: 1,
-            overflowY: 'auto',
-            padding: '1rem 2rem 2rem 2rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.5rem',
-        },
-        fixedFooter: {
-            padding: '1.5rem 2rem',
-            borderTop: '1px solid #f3f4f6',
-            backgroundColor: '#ffffff',
-            flexShrink: 0,
-            zIndex: 10,
-        },
-        detailsHeaderTop: {
+        headerActions: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
             display: 'flex',
             justifyContent: 'space-between',
-            marginBottom: '1rem',
+            padding: '1rem',
+            zIndex: 10,
         },
-        detailsActions: {
-            display: 'flex',
-            gap: '0.5rem',
-        },
-        closeButton: {
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
+        actionBtn: {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(4px)',
             border: 'none',
-            backgroundColor: '#f3f4f6',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
+            color: '#111827',
+        },
+        banner: {
+            height: '180px',
+            width: '100%',
+            background: 'linear-gradient(135deg, #111827 0%, #1f2937 40%, #c3002f 100%)', // Premium dark to red
+            position: 'relative',
+            flexShrink: 0,
+        },
+        scrollArea: {
+            flex: 1,
+            overflowY: 'auto',
+            paddingBottom: '3rem',
+        },
+        mainCard: {
+            maxWidth: '850px',
+            margin: '0 auto',
+            backgroundColor: '#ffffff',
+            borderRadius: isMobile ? '1.5rem 1.5rem 0 0' : '1rem', // Round top for mobile, full round for PC if inside container
+            padding: isMobile ? '1.5rem' : '3rem', // Bigger on PC
+            position: 'relative',
+            marginTop: '-50px', // Pull up to overlap banner
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
+            minHeight: '100%',
+        },
+        logoFloatingBox: {
+            width: '110px',
+            height: '110px',
+            backgroundColor: '#ffffff',
+            borderRadius: '1.2rem',
+            border: '6px solid #ffffff',
+            boxShadow: '0 8px 15px rgba(0,0,0,0.12)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            top: '-55px', // Stick out 55px
+            left: isMobile ? '1.5rem' : '3rem',
+            zIndex: 5,
+        },
+        titleSection: {
+            marginTop: '65px', // Space for the logo above
+            marginBottom: '1.25rem',
+        },
+        jobTitle: {
+            fontSize: isMobile ? '1.75rem' : '2.25rem',
+            fontWeight: '900',
+            color: '#111827',
+            lineHeight: 1.2,
+            letterSpacing: '-1px',
+            margin: '0 0 0.5rem 0',
+        },
+        subtitleLine: {
+            fontSize: '1.05rem',
             color: '#4b5563',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
             display: 'flex',
+            flexWrap: 'wrap',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: '0.4rem',
+            lineHeight: 1.5,
         },
-        iconButton: {
-            padding: '0.5rem',
-            borderRadius: '0.5rem',
-            border: 'none',
-            backgroundColor: 'transparent',
-            color: '#9ca3af',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        detailsJobInfo: {
+        dot: { color: '#9ca3af', margin: '0 0.1rem' },
+        insightGrid: {
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
+            gap: '0.75rem',
+            marginBottom: '2rem',
         },
-        detailsIconWrapper: {
-            width: '64px',
-            height: '64px',
-            backgroundColor: '#fee2e2',
-            borderRadius: '16px',
+        insightRow: {
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '1rem',
-        },
-        detailsJobTitle: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '0.5rem',
-        },
-        detailsCompany: {
-            fontSize: '1rem',
-            color: '#4b5563',
-            marginBottom: '0.5rem',
-        },
-        applicationsCount: {
-            display: 'inline-block',
-            padding: '0.25rem 0.75rem',
-            backgroundColor: '#ecfdf5',
-            color: '#059669',
-            borderRadius: '9999px',
-            fontSize: '0.875rem',
+            gap: '0.75rem',
+            fontSize: '1.05rem',
+            color: '#374151',
             fontWeight: '500',
         },
-        detailsGrid: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '1.5rem',
+        buttonsCard: {
+            display: 'flex',
+            gap: '1rem',
+            paddingBottom: '2rem',
+            borderBottom: '1px solid #e5e7eb',
+            marginBottom: '2rem',
         },
-        detailsLabel: {
-            fontSize: '0.875rem',
-            color: '#6b7280',
-            marginBottom: '0.25rem',
-            fontWeight: '500',
-        },
-        detailsValue: {
-            fontSize: '1rem',
-            color: '#111827',
-            fontWeight: '600',
-        },
-        descriptionSection: {
-            borderTop: '1px solid #f3f4f6',
-            paddingTop: '1.5rem',
-        },
-        description: {
-            fontSize: '1rem',
-            lineHeight: '1.7',
-            color: '#4b5563',
-        },
-        salarySection: {
-            backgroundColor: '#f9fafb',
-            padding: '1.5rem',
-            borderRadius: '0.75rem',
-            marginTop: '0.5rem',
-        },
-        salaryValue: {
-            fontSize: '1.25rem',
-            fontWeight: '700',
-            color: '#c3002f',
-        },
-        applyButton: {
-            width: '100%',
-            padding: '1rem',
-            backgroundColor: '#c3002f',
+        btnPrimary: {
+            backgroundColor: '#c3002f', // Brand core
             color: '#ffffff',
             border: 'none',
-            borderRadius: '0.5rem',
+            borderRadius: '99px',
+            padding: '0.9rem 2rem',
             fontSize: '1.1rem',
-            fontWeight: 'bold',
+            fontWeight: '700',
             cursor: 'pointer',
-            transition: 'all 0.2s',
+            boxShadow: '0 4px 14px rgba(195,0,47,0.3)',
+            flex: isMobile ? 1 : 'unset',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '0.5rem',
-            boxShadow: '0 4px 6px -1px rgba(195, 0, 47, 0.3)',
+        },
+        btnSecondary: {
+            backgroundColor: 'transparent',
+            color: '#c3002f',
+            border: '2px solid #c3002f',
+            borderRadius: '99px',
+            padding: '0.9rem 2rem',
+            fontSize: '1.1rem',
+            fontWeight: '700',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.5rem'
+        },
+        sectionTitle: {
+            fontSize: '1.35rem',
+            fontWeight: '800',
+            color: '#111827',
+            marginBottom: '1.25rem',
+            marginTop: '2rem',
+        },
+        textContent: {
+            fontSize: '1.05rem',
+            lineHeight: '1.7',
+            color: '#4b5563',
+            whiteSpace: 'pre-wrap',
         }
     };
 
-    const mobileStyles = {
-        fullScreenModal: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: '#f3f4f6',
-            zIndex: 2000,
-            display: 'flex',
-            flexDirection: 'column',
-        },
-        modalHeader: {
-            backgroundColor: '#FEFEFE',
-            padding: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: '1px solid #e5e7eb',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-        },
-        backButton: {
-            background: 'none',
-            border: 'none',
-            color: '#4b5563',
-            padding: '0.5rem',
-            marginLeft: '-0.5rem',
-        },
-        modalHeaderTitle: {
-            fontSize: '1.1rem',
-            fontWeight: '600',
-            color: '#111827',
-            margin: 0,
-        },
-        shareButton: {
-            background: 'none',
-            border: 'none',
-            color: '#4b5563',
-            padding: '0.5rem',
-            marginRight: '-0.5rem',
-        },
-        modalBody: {
-            flex: 1,
-            overflowY: 'auto',
-            padding: '1rem',
-            paddingBottom: '80px',
-        },
-        jobHeaderFull: {
-            backgroundColor: '#ffffff',
-            padding: '1.5rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-            marginBottom: '1rem',
-            textAlign: 'center',
-        },
-        companyLogoLarge: {
-            width: '64px',
-            height: '64px',
-            margin: '0 auto 1rem',
-            backgroundColor: '#f3f4f6',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-        jobTitleFull: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '0.5rem',
-            lineHeight: 1.3,
-        },
-        companyNameFull: {
-            fontSize: '1rem',
-            color: '#6b7280',
-            marginBottom: '0.5rem',
-        },
-        locationFull: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem',
-            color: '#6b7280',
-            fontSize: '0.9rem',
-        },
-        statsRow: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '0.75rem',
-            marginBottom: '1rem',
-        },
-        statItem: {
-            backgroundColor: '#ffffff',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        },
-        statLabel: {
-            fontSize: '0.75rem',
-            color: '#6b7280',
-            marginBottom: '0.25rem',
-        },
-        statValue: {
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            color: '#111827',
-        },
-        salaryCard: {
-            backgroundColor: '#c3002f',
-            padding: '1.5rem',
-            borderRadius: '0.5rem',
-            color: '#ffffff',
-            marginBottom: '1rem',
-            boxShadow: '0 4px 6px -1px rgba(195, 0, 47, 0.4)',
-        },
-        salaryCardHeader: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginBottom: '0.5rem',
-            opacity: 0.9,
-        },
-        salaryCardTitle: {
-            fontSize: '0.9rem',
-            fontWeight: '500',
-        },
-        salaryAmount: {
-            fontSize: '1.75rem',
-            fontWeight: 'bold',
-        },
-        descriptionCard: {
-            backgroundColor: '#ffffff',
-            padding: '1.5rem',
-            borderRadius: '0.5rem',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-            marginBottom: '1rem',
-        },
-        sectionTitle: {
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
-            color: '#111827',
-            marginBottom: '1rem',
-        },
-        descriptionText: {
-            color: '#4b5563',
-            lineHeight: '1.6',
-            fontSize: '0.95rem',
-        },
-        metaInfo: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '0 0.5rem',
-            marginBottom: '1rem',
-        },
-        applicationsText: {
-            color: '#059669',
-            fontSize: '0.85rem',
-            fontWeight: '500',
-        },
-        postedText: {
-            color: '#9ca3af',
-            fontSize: '0.85rem',
-        },
-        modalFooter: {
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            backgroundColor: '#ffffff',
-            padding: '1rem',
-            borderTop: '1px solid #e5e7eb',
-            display: 'flex',
-            gap: '0.75rem',
-            zIndex: 20,
-            boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.05)',
-        },
-        applyButtonFull: {
-            flex: 1,
-            backgroundColor: '#c3002f',
-            color: '#ffffff',
-            border: 'none',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            boxShadow: '0 4px 6px -1px rgba(195, 0, 47, 0.3)',
-        },
-        saveButtonFull: {
-            width: '3.5rem',
-            backgroundColor: '#f3f4f6',
-            border: 'none',
-            borderRadius: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-        },
-    };
-
-    if (isMobile) {
-        return (
-            <div style={mobileStyles.fullScreenModal}>
-                <div style={mobileStyles.modalHeader}>
-                    <button style={mobileStyles.backButton} onClick={onClose}>
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h2 style={mobileStyles.modalHeaderTitle}>Detalles del empleo</h2>
-                    <button style={mobileStyles.shareButton} onClick={onShare}>
-                        <Share2 size={20} />
-                    </button>
-                </div>
-
-                <div style={mobileStyles.modalBody}>
-                    <div style={mobileStyles.jobHeaderFull}>
-                        <div style={mobileStyles.companyLogoLarge}>
-                            <Briefcase size={32} color="#c3002f" />
-                        </div>
-                        <h1 style={mobileStyles.jobTitleFull}>{safeJob.title}</h1>
-                        <p style={mobileStyles.companyNameFull}>{safeJob.company}</p>
-                        <div style={mobileStyles.locationFull}>
-                            <MapPin size={16} color="#6b7280" />
-                            <span>{safeJob.location}</span>
-                        </div>
-                    </div>
-
-                    <div style={mobileStyles.statsRow}>
-                        <div style={mobileStyles.statItem}>
-                            <Clock size={18} color="#c3002f" />
-                            <div>
-                                <div style={mobileStyles.statLabel}>Tipo</div>
-                                <div style={mobileStyles.statValue}>{safeJob.time}</div>
-                            </div>
-                        </div>
-                        <div style={mobileStyles.statItem}>
-                            <Briefcase size={18} color="#c3002f" />
-                            <div>
-                                <div style={mobileStyles.statLabel}>Experiencia</div>
-                                <div style={mobileStyles.statValue}>{safeJob.experience}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={mobileStyles.salaryCard}>
-                        <div style={mobileStyles.salaryCardHeader}>
-                            <DollarSign size={24} color="#c3002f" />
-                            <span style={mobileStyles.salaryCardTitle}>Salario ofrecido</span>
-                        </div>
-                        <div style={mobileStyles.salaryAmount}>{safeJob.salary}</div>
-                    </div>
-
-                    <div style={mobileStyles.descriptionCard}>
-                        <h3 style={mobileStyles.sectionTitle}>Sobre el puesto</h3>
-                        <p style={mobileStyles.descriptionText}>{safeJob.description}</p>
-                    </div>
-
-                    <div style={mobileStyles.metaInfo}>
-                        <span style={mobileStyles.applicationsText}>
-                            {safeJob.applications || 'Sé uno de los primeros en aplicar'}
-                        </span>
-                        <span style={mobileStyles.postedText}>
-                            Publicado {safeJob.postedTime?.toLowerCase()}
-                        </span>
-                    </div>
-                    {/* Spacer for fixed footer */}
-                    <div style={{ height: "60px" }}></div>
-                </div>
-
-                <div style={mobileStyles.modalFooter}>
-                    <button
-                        style={mobileStyles.applyButtonFull}
-                        onClick={() => setShowRegistration(true)}
-                    >
-                        Aplicar a esta vacante
-                    </button>
-                </div>
-
-                {/* Modal: Registro */}
-                {showRegistration && (
-                    <Registro
-                        job={safeJob}
-                        onClose={() => setShowRegistration(false)}
-                    />
-                )}
-            </div>
-        );
-    }
-
-    // Desktop Render
-    return (
-        <aside style={styles.detailsPanel}>
-            {/* Header Fijo */}
-            <div style={styles.detailsHeader}>
-                <div style={styles.detailsHeaderTop}>
-                    <div style={styles.detailsActions}>
-                        <button style={styles.iconButton} onClick={onShare}>
-                            <Share2 size={20} />
-                        </button>
-                        {showCopiedMessage && <span style={{ color: 'green', fontSize: '0.8rem', alignSelf: 'center' }}>¡Copiado!</span>}
-                    </div>
-                    <button style={styles.closeButton} onClick={onClose}>
-                        <X size={24} />
-                    </button>
-                </div>
-
-                <div style={styles.detailsJobInfo}>
-                    <div style={styles.detailsIconWrapper}>
-                        <Briefcase size={32} color="#c3002f" />
-                    </div>
-                    <h2 style={styles.detailsJobTitle}>{safeJob.title}</h2>
-                    <p style={styles.detailsCompany}>{safeJob.company} - {safeJob.location}</p>
-                    <span style={styles.applicationsCount}>{safeJob.applications || 'Nuevas vacantes'}</span>
-                </div>
-            </div>
-
-            {/* Contenido Scrollable */}
-            <div style={styles.scrollableContent}>
-                <div style={styles.detailsGrid}>
-                    <div>
-                        <h4 style={styles.detailsLabel}>Tipo de Trabajo</h4>
-                        <p style={styles.detailsValue}>{safeJob.time}</p>
-                    </div>
-                    <div>
-                        <h4 style={styles.detailsLabel}>Experiencia</h4>
-                        <p style={styles.detailsValue}>{safeJob.experience}</p>
-                    </div>
-                    <div>
-                        <h4 style={styles.detailsLabel}>Posición</h4>
-                        <p style={styles.detailsValue}>{safeJob.title}</p>
-                    </div>
-                    <div>
-                        <h4 style={styles.detailsLabel}>Fecha Publicado</h4>
-                        <p style={styles.detailsValue}>{safeJob.postedTime}</p>
-                    </div>
-                </div>
-
-                <div style={styles.descriptionSection}>
-                    <h4 style={styles.detailsLabel}>Descripción</h4>
-                    <p style={styles.description}>{safeJob.description}</p>
-                </div>
-
-                <div style={styles.salarySection}>
-                    <h4 style={styles.detailsLabel}>Salario Base</h4>
-                    <p style={styles.salaryValue}>{safeJob.salary}</p>
-                </div>
-
-                {safeJob.requirements && (
-                    <div style={{ marginTop: '1rem' }}>
-                        <h4 style={styles.detailsLabel}>Requisitos</h4>
-                        <p style={styles.description}>{safeJob.requirements}</p>
-                    </div>
-                )}
-
-                {safeJob.benefits && (
-                    <div style={{ marginTop: '1rem' }}>
-                        <h4 style={styles.detailsLabel}>Beneficios</h4>
-                        <p style={styles.description}>{safeJob.benefits}</p>
-                    </div>
-                )}
-            </div>
-
-            {/* Footer Fijo */}
-            <div style={styles.fixedFooter}>
-                <button
-                    style={styles.applyButton}
-                    onClick={() => setShowRegistration(true)}
-                >
-                    Postularme Ahora
+    const HeaderButtons = () => (
+        <div style={s.headerActions}>
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                {showCopiedMessage && <span style={{ backgroundColor: '#10b981', color: '#fff', padding: '0.4rem 0.8rem', borderRadius: '4px', fontSize: '0.9rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>¡Enlace copiado!</span>}
+                <button style={s.actionBtn} onClick={onShare} className="btn-hover">
+                    <Share2 size={20} color="#111827" />
                 </button>
             </div>
+            <button style={s.actionBtn} onClick={onClose} className="btn-hover">
+                {isMobile ? <ChevronLeft size={22} /> : <X size={22} />}
+            </button>
+        </div>
+    );
 
-            {/* Modal: Registro */}
+    return (
+        <aside style={s.wrapper}>
+            <HeaderButtons />
+            <div style={s.banner} />
+
+            <div style={s.scrollArea}>
+                <div style={s.mainCard}>
+                    {/* Floating Logo */}
+                    <div style={s.logoFloatingBox}>
+                        <Briefcase size={54} color="#c3002f" />
+                    </div>
+
+                    {/* Titles */}
+                    <div style={s.titleSection}>
+                        <h1 style={s.jobTitle}>{safeJob.title}</h1>
+                        <div style={s.subtitleLine}>
+                            <span style={{ fontWeight: '700', color: '#111827' }}>{safeJob.company}</span>
+                            <span style={s.dot}>•</span>
+                            <span>{safeJob.location}</span>
+                            <span style={s.dot}>•</span>
+                            <span style={{ color: '#059669', fontWeight: '600' }}>{safeJob.postedTime}</span>
+                            <span style={s.dot}>•</span>
+                            <span style={{ color: '#0a66c2', fontWeight: '600' }}>{safeJob.applications || '+100 solicitudes'}</span>
+                        </div>
+                    </div>
+
+                    {/* Insights */}
+                    <div style={s.insightGrid}>
+                        <div style={s.insightRow}>
+                            <Briefcase size={26} color="#6b7280" />
+                            <span>{safeJob.time} · {safeJob.experience}</span>
+                        </div>
+                        <div style={s.insightRow}>
+                            <ClipboardList size={26} color="#6b7280" />
+                            <span>1,001-5,000 empleados · Sector Automotriz</span>
+                        </div>
+                        <div style={s.insightRow}>
+                            <DollarSign size={26} color="#6b7280" />
+                            <span>{safeJob.salary}</span>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div style={s.buttonsCard}>
+                        <button style={s.btnPrimary} onClick={() => setShowRegistration(true)} className="btn-hover">
+                            Postularse Ahora
+                        </button>
+                        <button style={s.btnSecondary} onClick={handleSave} className="btn-hover">
+                            {isSaved ? <CheckCircle size={22} /> : <Bookmark size={22} />}
+                            {isSaved ? "Guardado" : "Guardar"}
+                        </button>
+                    </div>
+
+                    {/* Description Body */}
+                    <div>
+                        <h2 style={{ ...s.sectionTitle, marginTop: 0 }}>Acerca del empleo</h2>
+                        <div style={s.textContent}>{safeJob.description}</div>
+
+                        {safeJob.requirements && (
+                            <>
+                                <h2 style={s.sectionTitle}>Requisitos indispensables</h2>
+                                <div style={s.textContent}>{safeJob.requirements}</div>
+                            </>
+                        )}
+
+                        {safeJob.benefits && (
+                            <>
+                                <h2 style={s.sectionTitle}>Beneficios corporativos</h2>
+                                <div style={s.textContent}>{safeJob.benefits}</div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            </div>
+
             {showRegistration && (
-                <Registro
-                    job={safeJob}
-                    onClose={() => setShowRegistration(false)}
-                />
+                <Registro job={safeJob} onClose={() => setShowRegistration(false)} />
             )}
         </aside>
     );

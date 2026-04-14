@@ -31,44 +31,50 @@ Este es un portal de empleo moderno y funcional construido con **React** para el
 
 ## 🛠️ Instalación y Configuración
 
-El proyecto se divide en dos carpetas: raíz (Frontend) y `server/` (Backend).
+El proyecto ahora soporta una orquestación completa mediante Docker, incluyendo la base de datos PostgreSQL autoconfigurada.
 
-### 1. Configuración del Backend
-1.  Navega a la carpeta del servidor:
+### 🐳 Opción A: Ejecución con Docker (Recomendado)
+Asegúrate de tener instalado **Docker** y **Docker Compose**.
+
+1.  **Levantar todos los servicios:**
     ```bash
-    cd server
+    docker compose up -d --build
     ```
-2.  Instala las dependencias:
+    *Esto levantará el Frontend (puerto 80), Backend (puerto 3002) y la Base de Datos (puerto 5432) con datos de prueba iniciales.*
+
+2.  **Acceso:**
+    - Frontend: `http://localhost`
+    - Backend Health Check: `http://localhost:3002/api/health`
+
+### 💻 Opción B: Ejecución Local (Desarrollo)
+
+#### 1. Configuración del Backend
+1.  Navega a la carpeta del servidor e instala dependencias:
     ```bash
-    npm install
+    cd server && npm install
     ```
-3.  Configura las variables de entorno:
-    Copia el archivo `.env.example` a `.env` y completa tus credenciales de base de datos y SMTP:
-    ```bash
-    cp .env.example .env
-    ```
-4.  Inicializa la base de datos (asegúrate de tener PostgreSQL corriendo):
+2.  Configura las variables de entorno:
+    Copia el archivo `.env.example` a `.env` y completa tus credenciales.
+3.  Inicializa la base de datos (requiere PostgreSQL local):
     ```bash
     node init-db.js
+    node seed-db.js
     ```
-5.  Inicia el servidor:
-    ```bash
-    node index.js
-    ```
-
-### 2. Configuración del Frontend
-1.  Regresa a la raíz del proyecto:
-    ```bash
-    cd ..
-    ```
-2.  Instala las dependencias:
-    ```bash
-    npm install
-    ```
-3.  Inicia el servidor de desarrollo:
+4.  Inicia el servidor:
     ```bash
     npm run dev
     ```
+
+#### 2. Configuración del Frontend
+1.  En la raíz del proyecto, instala dependencias:
+    ```bash
+    npm install
+    ```
+2.  Inicia el servidor de desarrollo:
+    ```bash
+    npm run dev
+    ```
+    - Acceso: `http://localhost:5173`
 
 ## 🖼️ Vistas de la Aplicación
 
